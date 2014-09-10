@@ -8,6 +8,7 @@ import subprocess
 
 class BNIEncodingWorker(threading.Thread):
     def __init__(self, worker_id, config, logger, queue):
+        threading.Thread.__init__(self)
         self.worker_id = worker_id
         self.init_config(config)
         self.init_logger(logger)
