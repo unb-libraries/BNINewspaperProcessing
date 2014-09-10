@@ -21,6 +21,7 @@ kakadu_kdu_compress_path=/usr/local/bin/kdu_compress
 
 [Tesseract]
 tesseract_bin_path=/usr/local/bin/tesseract
+tesseract_language=eng
 
 [OCR]
 gm_surrogate_convert_options=-colorspace Gray,-threshold 50%%,-depth 1,+compress

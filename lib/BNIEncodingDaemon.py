@@ -65,7 +65,7 @@ class BNIEncodingDaemon(Daemon):
     def update_queue(self):
         self.logger.info('Daemon looking for jobs for workers.')
         for root, subFolders, files in os.walk(self.input_path):
-            files = [fi for fi in files if not fi.endswith(".tiff")]
+            files = [fi for fi in files if fi.endswith(".tif")]
             for cur_file in files:
-                self.queue.update(os.path.join(root, cur_file))
+                self.queue.update([os.path.join(root, cur_file)])
 
