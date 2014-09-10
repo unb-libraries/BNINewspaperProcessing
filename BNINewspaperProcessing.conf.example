@@ -1,0 +1,29 @@
+[Locations]
+input_path=/home/imaging/bni_to_process
+bni_output_path=/home/imaging/bni_to_process
+lib_output_path=/home/imaging/bni_to_process
+tmp_path=/tmp
+
+[Threading]
+number_workers=2
+sleep_time=60
+
+[Logging]
+log_file=/tmp/newspaperEncoding.log
+log_format=%%(asctime)s %%(levelname)s %%(message)s
+log_level=DEBUG
+
+[GraphicsMagick]
+gm_bin_path=/usr/bin/gm
+
+[Kakadu]
+kakadu_kdu_compress_path=/usr/local/bin/kdu_compress
+
+[Tesseract]
+tesseract_bin_path=/usr/local/bin/tesseract
+
+[OCR]
+gm_surrogate_convert_options=-colorspace Gray,-threshold 50%%,-depth 1,+compress
+
+[HOCR]
+gm_surrogate_convert_options=-colorspace Gray,-threshold 50%%,-depth 1,+compress
