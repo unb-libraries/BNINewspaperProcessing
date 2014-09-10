@@ -66,7 +66,9 @@ class BNIEncodingWorker(threading.Thread):
         ]
         self.log_encode_begin()
         if subprocess.call(tesseractCall) == 0:
+            os.remove(surrogate_output_filepath)
             return True
+        os.remove(surrogate_output_filepath)
         self.log_encode_fail()
         return False
 
