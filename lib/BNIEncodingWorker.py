@@ -34,9 +34,9 @@ class BNIEncodingWorker(threading.Thread):
 
     def process_file(self):
         self.generate_basename()
-        self.generate_sha1()
         self.generate_hocr()
         self.generate_ocr()
+        self.generate_sha1()
         self.copy_tif_out()
         self.copy_jpg_out()
 
@@ -86,14 +86,15 @@ class BNIEncodingWorker(threading.Thread):
         pass
 
     def generate_sha1(self):
-        source_file_dir = os.path.dirname(self.cur_file)
         sha1sum_filename = '.'.join((self.basename, 'sha1'))
         sha1sum_filep = open(sha1sum_filename, "w")
         sha1sum_call = [
-          '/usr/bin/sha1sum',
-          os.path.basename(self.cur_file)
-          ]
-        if subprocess.call(sha1sum_call, stdout=sha1sum_filep, cwd=source_file_dir) == 0:
+            '/usr/bin/sha1sum',
+            os.path.basename(self.cur_file),
+            '.'.join((os.path.basename(self.basename), 'jpg')),
+            '.'.join((os.path.basename(self.basename), 'hocr')),
+        ]
+        if subprocess.call(sha1sum_call, stdout=sha1sum_filep, cwd=os.path.dirname(self.cur_file)) == 0:
             self.logger.info('Worker %s succeded in calculating SHA1sum of original file %s.', self.worker_id, sha1sum_filename)
             return True
         self.logger.info('Worker %s failed in calculating SHA1sum of original file %s.', self.worker_id, sha1sum_filename)
