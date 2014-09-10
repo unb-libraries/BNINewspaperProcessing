@@ -38,8 +38,9 @@ class BNIEncodingWorker(threading.Thread):
             self.generate_ocr() and
             self.generate_sha1()
         ):
-            self.copy_tif_out()
-            self.copy_jpg_out()
+            self.mv_tiff_out()
+            self.cp_jpg_out()
+            self.send_jpg_glacier()
 
     def generate_hocr(self):
         self.logger.info('Worker %s generating OCR for %s.', self.worker_id, self.cur_file)
