@@ -20,7 +20,7 @@ gm_bin_path=/usr/bin/gm
 kakadu_kdu_compress_path=/usr/local/bin/kdu_compress
 
 [Tesseract]
-tesseract_bin_path=/usr/local/bin/tesseract
+tesseract_bin_path=/usr/bin/tesseract
 tesseract_language=eng
 
 [OCR]
