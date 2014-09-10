@@ -83,6 +83,19 @@ class BNIEncodingWorker(threading.Thread):
         pass
 
     def generate_sha1(self):
+        sha1sum_filename = '.'.join((self.basename, 'sha1'))
+        sha1sum_filep = open(sha1sum_filename, "w")
+        sha1sum_call = [
+          '/usr/bin/sha1sum',
+          self.cur_file
+          ]
+        if subprocess.call(sha1sum_call, stdout=sha1sum_filep) == 0:
+            self.logger.info('Worker %s succeded in calculating SHA1sum of original file %s.', self.worker_id, sha1sum_filename)
+            return True
+        self.logger.info('Worker %s failed in calculating SHA1sum of original file %s.', self.worker_id, sha1sum_filename)
+        return False
+
+    def generate_ocr(self):
         pass
 
     def generate_basename(self):
