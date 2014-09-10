@@ -5,8 +5,8 @@ Core worker class for generating OCR for BNINewspaperMicroservices.
 
 import os
 import re
-import threading
 import subprocess
+import threading
 
 class BNIEncodingWorker(threading.Thread):
     def __init__(self, worker_id, config, logger, queue):
