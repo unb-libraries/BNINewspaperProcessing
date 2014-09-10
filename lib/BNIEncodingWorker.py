@@ -93,7 +93,7 @@ class BNIEncodingWorker(threading.Thread):
         return re.split("[ ,]+", options_string)
 
     def log_encode_begin(self):
-        self.logger.info('Worker %s encoding %s %s surrogate to %s.', self.worker_id, self.cur_file)
+        self.logger.info('Worker %s encoding %s surrogate.', self.worker_id, self.cur_file)
 
     def log_encode_fail(self):
         self.logger.error('Worker %s encoding surrogate of %s has failed.', self.worker_id, self.cur_file)
