@@ -33,12 +33,13 @@ class BNIEncodingWorker(threading.Thread):
             #   break
 
     def process_file(self):
-        self.generate_basename()
-        self.generate_hocr()
-        self.generate_ocr()
-        self.generate_sha1()
-        self.copy_tif_out()
-        self.copy_jpg_out()
+        if (self.generate_basename() and
+            self.generate_hocr() and
+            self.generate_ocr() and
+            self.generate_sha1()
+        ):
+            self.copy_tif_out()
+            self.copy_jpg_out()
 
     def generate_hocr(self):
         self.logger.info('Worker %s generating OCR for %s.', self.worker_id, self.cur_file)
@@ -101,10 +102,11 @@ class BNIEncodingWorker(threading.Thread):
         return False
 
     def generate_ocr(self):
-        pass
+        return True
 
     def generate_basename(self):
         self.basename = self.cur_file[0:self.cur_file.rindex('.')]
+        return True
 
     def append_additional_encode_options(self, call_list, extra_options_variable, encoder_name):
         extra_options = self.config.get('HOCR', extra_options_variable)
