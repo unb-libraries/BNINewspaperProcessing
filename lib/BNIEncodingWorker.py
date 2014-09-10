@@ -34,11 +34,12 @@ class BNIEncodingWorker(threading.Thread):
     def process_file(self):
         self.generate_basename()
         self.generate_sha1()
+        self.generate_hocr()
         self.generate_ocr()
         self.copy_tif_out()
         self.copy_jpg_out()
 
-    def generate_ocr(self):
+    def generate_hocr(self):
         self.logger.info('Worker %s generating OCR for %s.', self.worker_id, self.cur_file)
         surrogate_output_filepath = '.'.join( (self.basename, 'tiff'))
 
