@@ -11,6 +11,7 @@ class BNIEncodingWorker(threading.Thread):
     def __init__(self, worker_id, config, logger, queue):
         threading.Thread.__init__(self)
         self.cur_file = ''
+        self.basename = ''
         self.worker_id = worker_id
         self.init_config(config)
         self.init_logger(logger)
@@ -31,6 +32,7 @@ class BNIEncodingWorker(threading.Thread):
             #   break
 
     def process_file(self):
+        self.generate_basename()
         self.generate_sha1()
         self.generate_ocr()
         self.copy_tif_out()
@@ -38,8 +40,7 @@ class BNIEncodingWorker(threading.Thread):
 
     def generate_ocr(self):
         self.logger.info('Worker %s generating OCR for %s.', self.worker_id, self.cur_file)
-        output_base_name = self.cur_file[0:self.cur_file.rindex('.')]
-        surrogate_output_filepath = '.'.join( (output_base_name, 'tiff'))
+        surrogate_output_filepath = '.'.join( (self.basename, 'tiff'))
 
         gm_call = [
                   self.config.get('GraphicsMagick', 'gm_bin_path'),
@@ -57,7 +58,7 @@ class BNIEncodingWorker(threading.Thread):
         tesseractCall = [
             self.config.get('Tesseract', 'tesseract_bin_path'),
             surrogate_output_filepath,
-            output_base_name,
+            self.basename,
             "-l", self.language,
             'hocr',
         ]
@@ -82,6 +83,9 @@ class BNIEncodingWorker(threading.Thread):
 
     def generate_sha1(self):
         pass
+
+    def generate_basename(self):
+        self.basename = self.cur_file[0:self.cur_file.rindex('.')]
 
     def append_additional_encode_options(self, call_list, extra_options_variable, encoder_name):
         extra_options = self.config.get('HOCR', extra_options_variable)
