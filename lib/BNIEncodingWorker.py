@@ -45,8 +45,8 @@ class BNIEncodingWorker(threading.Thread):
             self.check_jpg_size() and
             self.generate_hocr() and
             self.generate_ocr() and
-            self.cp_bni_out() and
-            self.cp_lib_out()
+            self.archive_files(self.bni_output_path, ['hocr', 'txt', 'tif']) and
+            self.archive_files(self.lib_output_path, ['hocr', 'txt', 'jpg'])
         ):
             pass
             # self.remove_originals()
@@ -138,6 +138,31 @@ class BNIEncodingWorker(threading.Thread):
                     '.'.join((self.file_stem, 'txt')),
                     '.'.join((self.file_stem, 'jpg')),
                 ]
+            )
+        return False
+
+    def archive_files(self, output_path, extensions):
+        cur_file_relative_dir = self.cur_typeless_path.replace(self.tree_base_path + '/', '')
+        sha1_files_to_check=[]
+
+        rsyncCall = [
+            'rsync',
+            '-a',
+            '-L',
+            '--relative',
+        ]
+        for cur_extension in extensions:
+            rsyncCall.append(cur_file_relative_dir + '/' + '.'.join((self.file_stem, cur_extension)))
+            sha1_files_to_check.append('.'.join((self.file_stem, cur_extension)))
+
+        rsyncCall.append(output_path + '/')
+
+        if subprocess.call(rsyncCall, cwd=self.tree_base_path) == 0:
+
+            return self.generate_sha1(
+                output_path + '/' + cur_file_relative_dir,
+                '.'.join((self.file_stem, 'sha1')),
+                sha1_files_to_check
             )
         return False
 
