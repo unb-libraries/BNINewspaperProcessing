@@ -214,7 +214,7 @@ class BNIEncodingWorker(threading.Thread):
         new_tif_path = os.path.join(self.cur_typeless_path, os.path.basename(self.cur_tif))
         new_jpg_path = os.path.join(self.cur_typeless_path, os.path.basename(self.cur_jpg))
         os.symlink(self.cur_tif, new_tif_path)
-        self.cur_tif = self.cur_tif
+        self.cur_tif = new_tif_path
         self.generate_basename()
         os.symlink(self.cur_jpg, new_jpg_path)
         self.cur_jpg = new_jpg_path
