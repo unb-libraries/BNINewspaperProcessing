@@ -49,6 +49,7 @@ class BNIEncodingWorker(threading.Thread):
             self.archive_files(self.lib_output_path, ['hocr', 'txt', 'jpg'])
         ):
             pass
+            # self.log_transaction()
             # self.remove_originals()
 
     def generate_hocr(self):
