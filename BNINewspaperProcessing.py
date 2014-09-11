@@ -97,6 +97,7 @@ if __name__ == "__main__":
     daemon = BNIEncodingDaemon(
         options.config_file,
         options.pid_filepath,
+        '/dev/null',
         options.stdout,
         options.stderr,
     )

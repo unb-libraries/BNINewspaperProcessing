@@ -13,8 +13,8 @@ import os
 
 
 class BNIEncodingDaemon(Daemon):
-    def __init__(self, config_file, pid_filepath, stdout_super='/dev/null', stderr_super='/dev/null'):
-        super(BNIEncodingDaemon, self).__init__(pid_filepath, stdout=stdout_super, stderr=stderr_super)
+    def __init__(self, config_file, pid_filepath, stdin_super='/dev/null', stdout_super='/dev/null', stderr_super='/dev/null'):
+        super(BNIEncodingDaemon, self).__init__(pid_filepath, stdin_super, stdout_super, stderr_super)
         self.init_config(config_file)
         self.init_logger()
         self.queue = set()
