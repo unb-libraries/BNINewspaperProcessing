@@ -176,7 +176,7 @@ class BNIEncodingWorker(threading.Thread):
         self.cur_tif = self.queue.pop()
         self.generate_basename()
         self.cur_jpg = os.path.normpath(
-            os.path.dirname(self.cur_tif) +
+            os.path.dirname(self.cur_tif) + '/' +
             self.config.get('Locations', 'relative_location_jpg') +
             '.'.join((os.path.basename(self.basename), 'jpg'))
         )
