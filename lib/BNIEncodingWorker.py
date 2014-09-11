@@ -110,7 +110,7 @@ class BNIEncodingWorker(threading.Thread):
         ocr_file_p = open('.'.join((self.basename, 'txt')), "w")
         soup = BeautifulSoup(hocr_file_string)
         for p_item in soup.findAll(['p']):
-            ocr_file_p.write(p_item.value + "\n")
+            ocr_file_p.write(p_item.getText() + "\n")
         ocr_file_p.close()
         return True
 
