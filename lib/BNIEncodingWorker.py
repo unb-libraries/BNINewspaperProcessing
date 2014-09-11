@@ -105,7 +105,27 @@ class BNIEncodingWorker(threading.Thread):
         return False
 
     def cp_lib_out(self):
-        return True
+        cur_file_relative_dir = os.path.dirname(self.cur_tif).replace(self.tree_base_path + '/', '')
+        rsyncCall = [
+            'rsync',
+            '-a',
+            '--relative',
+            cur_file_relative_dir + '/' + '.'.join((os.path.basename(self.basename), 'hocr')),
+            cur_file_relative_dir + '/' + '.'.join((os.path.basename(self.basename), 'txt')),
+            self.lib_output_path + '/',
+        ]
+        if subprocess.call(rsyncCall, cwd=self.tree_base_path) == 0:
+            cur_file_relative_dir = os.path.dirname(self.cur_jpg).replace(self.tree_base_path + '/', '')
+            rsyncCall = [
+            'rsync',
+            '-a',
+            '--relative',
+            cur_file_relative_dir + '/' + '.'.join((os.path.basename(self.basename), 'jpg')),
+            self.lib_output_path + '/',
+            ]
+            if subprocess.call(rsyncCall, cwd=self.tree_base_path) == 0:
+                return True
+        return False
 
     def generate_sha1(self):
         sha1sum_filename = '.'.join((self.basename, 'sha1'))
