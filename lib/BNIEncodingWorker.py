@@ -83,10 +83,13 @@ class BNIEncodingWorker(threading.Thread):
         self.logger = logger
         self.logger.info('Worker %s appears!', self.worker_id)
 
-    def copy_tif_out(self):
+    def mv_tiff_out(self):
         pass
 
-    def copy_jpg_out(self):
+    def cp_jpg_out(self):
+        pass
+
+    def send_jpg_glacier(self):
         pass
 
     def generate_sha1(self):
