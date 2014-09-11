@@ -91,56 +91,6 @@ class BNIEncodingWorker(threading.Thread):
         self.logger = logger
         self.logger.info('Worker %s appears!', self.worker_id)
 
-    def cp_bni_out(self):
-        cur_file_relative_dir = self.cur_typeless_path.replace(self.tree_base_path + '/', '')
-        rsyncCall = [
-            'rsync',
-            '-a',
-            '-L',
-            '--relative',
-            cur_file_relative_dir + '/' + '.'.join((self.file_stem, 'hocr')),
-            cur_file_relative_dir + '/' + '.'.join((self.file_stem, 'txt')),
-            cur_file_relative_dir + '/' + '.'.join((self.file_stem, 'tif')),
-            self.bni_output_path + '/',
-        ]
-        if subprocess.call(rsyncCall, cwd=self.tree_base_path) == 0:
-            os.unlink(self.cur_tif)
-            return self.generate_sha1(
-                self.bni_output_path + '/' + cur_file_relative_dir,
-                '.'.join((self.file_stem, 'sha1')),
-                [
-                    '.'.join((self.file_stem, 'hocr')),
-                    '.'.join((self.file_stem, 'txt')),
-                    '.'.join((self.file_stem, 'tif')),
-                ]
-            )
-        return False
-
-    def cp_lib_out(self):
-        cur_file_relative_dir = self.cur_typeless_path.replace(self.tree_base_path + '/', '')
-        rsyncCall = [
-            'rsync',
-            '-a',
-            '-L',
-            '--relative',
-            cur_file_relative_dir + '/' + '.'.join((self.file_stem, 'hocr')),
-            cur_file_relative_dir + '/' + '.'.join((self.file_stem, 'txt')),
-            cur_file_relative_dir + '/' + '.'.join((self.file_stem, 'jpg')),
-            self.lib_output_path + '/',
-        ]
-        if subprocess.call(rsyncCall, cwd=self.tree_base_path) == 0:
-            os.unlink(self.cur_jpg)
-            return self.generate_sha1(
-                self.lib_output_path + '/' + cur_file_relative_dir,
-                '.'.join((self.file_stem, 'sha1')),
-                [
-                    '.'.join((self.file_stem, 'hocr')),
-                    '.'.join((self.file_stem, 'txt')),
-                    '.'.join((self.file_stem, 'jpg')),
-                ]
-            )
-        return False
-
     def archive_files(self, output_path, extensions):
         cur_file_relative_dir = self.cur_typeless_path.replace(self.tree_base_path + '/', '')
         sha1_files_to_check=[]
