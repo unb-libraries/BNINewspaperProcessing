@@ -63,9 +63,9 @@ class Daemon(object):
     def delpid(self):
         os.remove(self.pidfile)
 
-    def restart(self, config_file):
+    def restart(self):
         self.stop()
-        self.start(config_file)
+        self.start()
 
     def run(self):
         """
@@ -73,7 +73,7 @@ class Daemon(object):
         daemonized by start() or restart().
         """
 
-    def start(self, config_file):
+    def start(self):
         # Check for a pidfile to see if the daemon already runs
         try:
             pf = file(self.pidfile, 'r')
@@ -89,7 +89,7 @@ class Daemon(object):
 
         # Start the daemon
         self.daemonize()
-        self.run(config_file)
+        self.run()
 
     def stop(self):
         # Get the pid from the pidfile
