@@ -50,7 +50,6 @@ class BNIEncodingWorker(threading.Thread):
         ):
             pass
             # self.remove_originals()
-            # self.generate_sha1() MOVE THIS TO SELF-AWARE COPY / MOVE FUNCTIONS
 
     def generate_hocr(self):
         self.logger.info('Worker %s generating OCR for %s.', self.worker_id, self.cur_tif)
