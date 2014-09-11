@@ -111,9 +111,7 @@ class BNIEncodingWorker(threading.Thread):
         with open('.'.join((self.basename, 'hocr')), "r") as hocr_file_p:
             hocr_file_string=hocr_file_p.read().replace('\n', '')
         ocr_file_p = open('.'.join((self.basename, 'txt')), "w")
-        soup = BeautifulSoup(hocr_file_string)
-        for p_item in soup.findAll(['p']):
-            ocr_file_p.write(p_item.getText() + "\n")
+        ocr_file_p.write(self.strip_all_tags(hocr_file_string))
         ocr_file_p.close()
         return True
 
@@ -138,3 +136,8 @@ class BNIEncodingWorker(threading.Thread):
 
     def log_encode_success(self):
         self.logger.info('Worker %s encoding surrogate of %s has succeeded.', self.worker_id,self.cur_file)
+
+    def strip_all_tags(self, html):
+        if html is None:
+            return None
+        return ''.join( BeautifulSoup(html).findAll(text=True))
