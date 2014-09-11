@@ -27,7 +27,6 @@ def check_options(options, parser):
             (
                     options.action_start,
                     options.action_stop,
-                    options.action_restart
             )
     ):
         parser.print_help()
