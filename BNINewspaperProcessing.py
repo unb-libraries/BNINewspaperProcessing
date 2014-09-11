@@ -58,13 +58,6 @@ def init_options():
         help="Stop the encoding daemon.",
     )
     option_parser.add_option(
-        "--restart",
-        dest="action_restart",
-        action="store_true",
-        default=False,
-        help="Restart start the encoding daemon.",
-    )
-    option_parser.add_option(
         "--pidfile",
         dest="pid_filepath",
         default="/tmp/bni-worker.pid",
@@ -94,20 +87,21 @@ def one_is_true(iterable):
 
 if __name__ == "__main__":
     options = init_options()
-    daemon = BNIEncodingDaemon(
-        options.pid_filepath,
-        '/dev/null',
-        options.stdout,
-        options.stderr,
-        options.config_file,
-    )
+
     if options.action_stop:
         print "Stopping " + sys.argv[0]
+        daemon = BNIEncodingDaemon(
+            options.pid_filepath,
+        )
         daemon.stop()
-    elif options.action_restart:
-        print "Restarting " + sys.argv[0]
-        daemon.restart()
     elif options.action_start:
         print "Starting " + sys.argv[0]
+        daemon = BNIEncodingDaemon(
+            options.pid_filepath,
+            '/dev/null',
+            options.stdout,
+            options.stderr,
+            options.config_file,
+        )
         daemon.start()
     sys.exit(0)
