@@ -11,14 +11,18 @@ import threading
 import time
 import os
 
+
 class BNIEncodingDaemon(Daemon):
-    def run(self, config_file):
+    def __init__(self, config_file, pid_filepath, stdin='/dev/null', stdout='/dev/null', stderr='/dev/null'):
+        super(BNIEncodingDaemon, self).__init__(pid_filepath, stdin, stdout, stderr)
         self.init_config(config_file)
         self.init_logger()
         self.queue = set()
         self.max_workers = self.config.getint('Threading', 'number_workers')
         self.sleep_time = self.config.getint('Threading', 'sleep_time')
         self.input_path = self.config.get('Locations', 'input_path')
+
+    def run(self):
         while True:
             self.logger.info('Updating Queue.')
             self.update_queue()
@@ -68,4 +72,3 @@ class BNIEncodingDaemon(Daemon):
             files = [fi for fi in files if fi.endswith(".tif")]
             for cur_file in files:
                 self.queue.update([os.path.join(root, cur_file)])
-

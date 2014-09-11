@@ -8,6 +8,7 @@ import re
 import subprocess
 import threading
 
+
 class BNIEncodingWorker(threading.Thread):
     def __init__(self, worker_id, config, logger, queue):
         threading.Thread.__init__(self)
@@ -26,11 +27,11 @@ class BNIEncodingWorker(threading.Thread):
         while True:
             self.logger.info('Worker %s does not have a task assigned. Looking for one.', self.worker_id)
             self.logger.info('Worker %s reports queue length is currently %s.', self.worker_id, len(self.queue))
-            # try:
-            self.cur_file = self.queue.pop()
-            self.process_file()
-            # except:
-            #   break
+            try:
+                self.cur_file = self.queue.pop()
+                self.process_file()
+            except:
+                break
 
     def process_file(self):
         if (self.generate_basename() and
