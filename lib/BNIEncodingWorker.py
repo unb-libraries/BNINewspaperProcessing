@@ -91,7 +91,7 @@ class BNIEncodingWorker(threading.Thread):
         self.logger.info('Worker %s appears!', self.worker_id)
 
     def cp_bni_out(self):
-        cur_file_relative_dir = os.path.dirname(self.cur_tif).replace(self.tree_base_path + '/', '')
+        cur_file_relative_dir = self.cur_typeless_path.replace(self.tree_base_path + '/', '')
         rsyncCall = [
             'rsync',
             '-a',
@@ -103,12 +103,12 @@ class BNIEncodingWorker(threading.Thread):
             self.bni_output_path + '/',
         ]
         if subprocess.call(rsyncCall, cwd=self.tree_base_path) == 0:
-            os.unlink(self.cur_tif)
+            os.remove(self.cur_tif)
             return True
         return False
 
     def cp_lib_out(self):
-        cur_file_relative_dir = os.path.dirname(self.cur_tif).replace(self.tree_base_path + '/', '')
+        cur_file_relative_dir = self.cur_typeless_path.replace(self.tree_base_path + '/', '')
         rsyncCall = [
             'rsync',
             '-a',
