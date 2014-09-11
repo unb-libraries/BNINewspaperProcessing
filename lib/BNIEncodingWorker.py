@@ -31,6 +31,7 @@ class BNIEncodingWorker(threading.Thread):
             self.logger.info('Worker %s reports queue length is currently %s.', self.worker_id, len(self.queue))
             try:
                 self.setup_next_image()
+                self.logger.info('Worker %s set to work on %s.', self.worker_id, self.cur_tif)
                 self.process_file()
             except:
                 break
@@ -151,6 +152,7 @@ class BNIEncodingWorker(threading.Thread):
         return ocr_string
 
     def check_tif_size(self):
+        self.logger.info('Checking Tif Size.', self.worker_id)
         return self.check_file_size(self.cur_tif, int(self.config.get('MinimumSizes', 'min_size_tif')))
 
     def check_jpg_exits(self):
