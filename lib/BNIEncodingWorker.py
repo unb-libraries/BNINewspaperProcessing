@@ -152,17 +152,23 @@ class BNIEncodingWorker(threading.Thread):
         return ocr_string
 
     def check_tif_size(self):
-        self.logger.info('Checking Tif Size.', self.worker_id)
-        return self.check_file_size(self.cur_tif, int(self.config.get('MinimumSizes', 'min_size_tif')))
+        cur_min_size = int(self.config.get('MinimumSizes', 'min_size_tif'))
+        cur_tif_size = os.path.getsize(self.cur_tif)
+        self.logger.info('Worker %s checking TIF Size %s vs %s.', self.worker_id, cur_min_size, cur_tif_size)
+        return self.check_file_size(self.cur_tif, cur_min_size)
 
     def check_jpg_exits(self):
+        self.logger.info('Worker %s checking If JPG exists %s.', self.worker_id, self.cur_jpg)
         return os.path.isfile(self.cur_jpg)
 
     def check_jpg_size(self):
-        return self.check_file_size(self.cur_jpg, int(self.config.get('MinimumSizes', 'min_size_jpg')))
+        cur_min_size = int(self.config.get('MinimumSizes', 'min_size_jpg'))
+        cur_jpg_size = os.path.getsize(self.cur_jpg)
+        self.logger.info('Worker %s checking JPG Size %s vs %s.', self.worker_id, cur_min_size, cur_jpg_size)
+        return self.check_file_size(self.cur_jpg, cur_min_size)
 
     def check_file_size(self, file_path, minimum_size):
-        if os.path.getsize(file_path) > minimum_size:
+        if int(os.path.getsize(file_path)) > int(minimum_size):
             return True
         return False
 
