@@ -3,6 +3,7 @@
 Core worker class for generating OCR for BNINewspaperMicroservices.
 """
 
+from bs4 import BeautifulSoup
 import os
 import re
 import subprocess
@@ -104,6 +105,13 @@ class BNIEncodingWorker(threading.Thread):
         return False
 
     def generate_ocr(self):
+        with open('.'.join((os.path.basename(self.basename), 'hocr')), "r") as hocr_file_p:
+            hocr_file_string=hocr_file_p.read().replace('\n', '')
+        ocr_file_p = open('.'.join((os.path.basename(self.basename), 'txt')), "w")
+        soup = BeautifulSoup(hocr_file_string)
+        for p_item in soup.findAll(['p']):
+            ocr_file_p.write(p_item.value + "\n")
+        ocr_file_p.close()
         return True
 
     def generate_basename(self):
