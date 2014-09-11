@@ -111,7 +111,9 @@ class BNIEncodingWorker(threading.Thread):
         with open('.'.join((self.basename, 'hocr')), "r") as hocr_file_p:
             hocr_file_string=hocr_file_p.read().replace('\n', '')
         ocr_file_p = open('.'.join((self.basename, 'txt')), "w")
-        ocr_file_p.write(self.strip_all_tags(hocr_file_string))
+        soup = BeautifulSoup(hocr_file_string)
+        for p_item in soup.findAll(['p']):
+            ocr_file_p.write(p_item.getText().encode('utf-8') + "\n")
         ocr_file_p.close()
         return True
 
