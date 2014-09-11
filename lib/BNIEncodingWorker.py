@@ -11,11 +11,12 @@ import threading
 
 
 class BNIEncodingWorker(threading.Thread):
-    def __init__(self, worker_id, config, logger, queue):
+    def __init__(self, worker_id, config, logger, queue, tree_base_path):
         threading.Thread.__init__(self)
         self.cur_tif = ''
         self.cur_jpg = ''
         self.basename = ''
+        self.tree_base_path = tree_base_path
         self.worker_id = worker_id
         self.init_config(config)
         self.init_logger(logger)
@@ -42,8 +43,8 @@ class BNIEncodingWorker(threading.Thread):
             self.check_jpg_size() and
             self.generate_hocr() and
             self.generate_ocr() and
-            self.cp_tiff_out() and
-            self.cp_jpg_out()
+            self.cp_bni_out() and
+            self.cp_lib_out()
         ):
             pass
             # self.remove_originals()
@@ -88,11 +89,20 @@ class BNIEncodingWorker(threading.Thread):
         self.logger = logger
         self.logger.info('Worker %s appears!', self.worker_id)
 
-    def cp_tiff_out(self):
-        pass
+    def cp_bni_out(self):
+        cur_file_relative_dir = os.path.dirname(self.cur_tif).replace(self.tree_base_path + '/', '')
+        rsyncCall = [
+            'rsync',
+            '-a',
+            cur_file_relative_dir + '/' + '.'.join((self.basename, '*')),
+            self.bni_output_path,
+        ]
+        if subprocess.call(rsyncCall, cwd=self.tree_base_path) == 0:
+            return True
+        return False
 
-    def cp_jpg_out(self):
-        pass
+    def cp_lib_out(self):
+        return True
 
     def generate_sha1(self):
         sha1sum_filename = '.'.join((self.basename, 'sha1'))

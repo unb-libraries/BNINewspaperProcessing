@@ -37,6 +37,7 @@ class BNIEncodingDaemon(Daemon):
                         self.config,
                         self.logger,
                         self.queue,
+                        self.input_path,
                     )
                     worker.start()
                     # Sleep on initial worker spin-up to let previous worker get job from queue and stagger queue
