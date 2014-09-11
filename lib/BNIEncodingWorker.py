@@ -94,7 +94,7 @@ class BNIEncodingWorker(threading.Thread):
         rsyncCall = [
             'rsync',
             '-a',
-            cur_file_relative_dir + '/' + '.'.join((self.basename, '*')),
+            cur_file_relative_dir + '/' + '.'.join((os.path.basename(self.basename), '*')),
             self.bni_output_path,
         ]
         if subprocess.call(rsyncCall, cwd=self.tree_base_path) == 0:
