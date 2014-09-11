@@ -13,7 +13,7 @@ import os
 
 
 class BNIEncodingDaemon(Daemon):
-    def __init__(self, config_file, pid_filepath, stdin_super='/dev/null', stdout_super='/dev/null', stderr_super='/dev/null'):
+    def __init__(self, pid_filepath, stdin_super='/dev/null', stdout_super='/dev/null', stderr_super='/dev/null', config_file=''):
         super(BNIEncodingDaemon, self).__init__(pid_filepath, stdin_super, stdout_super, stderr_super)
         self.init_config(config_file)
         self.init_logger()

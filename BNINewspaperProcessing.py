@@ -40,7 +40,7 @@ def init_options():
     option_parser.add_option(
         "-c", "--config",
         dest="config_file",
-        default=None,
+        default='',
         help="The config file to process with.",
     )
     option_parser.add_option(
@@ -95,11 +95,11 @@ def one_is_true(iterable):
 if __name__ == "__main__":
     options = init_options()
     daemon = BNIEncodingDaemon(
-        options.config_file,
         options.pid_filepath,
         '/dev/null',
         options.stdout,
         options.stderr,
+        options.config_file,
     )
     if options.action_stop:
         print "Stopping " + sys.argv[0]
