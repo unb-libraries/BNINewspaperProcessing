@@ -110,10 +110,9 @@ class BNIEncodingWorker(threading.Thread):
     def generate_ocr(self):
         with open('.'.join((self.basename, 'hocr')), "r") as hocr_file_p:
             hocr_file_string=hocr_file_p.read().replace('\n', '')
+
         ocr_file_p = open('.'.join((self.basename, 'txt')), "w")
-        soup = BeautifulSoup(hocr_file_string)
-        for p_item in soup.findAll(['p']):
-            ocr_file_p.write(p_item.getText().encode('utf-8') + "\n")
+        ocr_file_p.write(self.distill_hocr_to_ocr(hocr_file_string))
         ocr_file_p.close()
         return True
 
@@ -139,7 +138,13 @@ class BNIEncodingWorker(threading.Thread):
     def log_encode_success(self):
         self.logger.info('Worker %s encoding surrogate of %s has succeeded.', self.worker_id,self.cur_file)
 
-    def strip_all_tags(self, html):
-        if html is None:
-            return None
-        return ''.join( BeautifulSoup(html).findAll(text=True))
+    def distill_hocr_to_ocr(self, hocr_string):
+        ocr_string=''
+        soup = BeautifulSoup(hocr_string)
+        for p_item in soup.findAll('p'):
+            ocr_string += ' '.join(
+                ''.join(
+                    p_item.findAll(text=True)
+                ).encode('utf-8').split()
+            ) + "\n"
+        return ocr_string
