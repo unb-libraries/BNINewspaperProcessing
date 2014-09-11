@@ -107,7 +107,7 @@ class BNIEncodingWorker(threading.Thread):
             os.unlink(self.cur_tif)
             return self.generate_sha1(
                 self.bni_output_path + '/' + cur_file_relative_dir,
-                self.file_stem,
+                '.'.join((self.file_stem, 'sha1')),
                 [
                     '.'.join((self.file_stem, 'hocr')),
                     '.'.join((self.file_stem, 'txt')),
@@ -132,7 +132,7 @@ class BNIEncodingWorker(threading.Thread):
             os.unlink(self.cur_jpg)
             return self.generate_sha1(
                 self.lib_output_path + '/' + cur_file_relative_dir,
-                self.file_stem,
+                '.'.join((self.file_stem, 'sha1')),
                 [
                     '.'.join((self.file_stem, 'hocr')),
                     '.'.join((self.file_stem, 'txt')),
@@ -142,7 +142,7 @@ class BNIEncodingWorker(threading.Thread):
         return False
 
     def generate_sha1(self, path, output_file, filenames):
-        sha1sum_filep = open(output_file, "w")
+        sha1sum_filep = open(os.path.join(path,output_file), "w")
         sha1sum_call = [
             '/usr/bin/sha1sum',
         ]
