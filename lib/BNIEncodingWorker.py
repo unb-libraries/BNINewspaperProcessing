@@ -91,14 +91,14 @@ class BNIEncodingWorker(threading.Thread):
 
     def cp_bni_out(self):
         cur_file_relative_dir = os.path.dirname(self.cur_tif).replace(self.tree_base_path + '/', '')
+        cur_file_relative_typeless_dir = os.path.normpath(cur_file_relative_dir + '/../')
         rsyncCall = [
             'rsync',
             '-a',
-            '--relative',
             cur_file_relative_dir + '/' + '.'.join((os.path.basename(self.basename), 'tif')),
             cur_file_relative_dir + '/' + '.'.join((os.path.basename(self.basename), 'hocr')),
             cur_file_relative_dir + '/' + '.'.join((os.path.basename(self.basename), 'txt')),
-            self.bni_output_path + '/',
+            self.bni_output_path + '/' + cur_file_relative_typeless_dir + '/',
         ]
         if subprocess.call(rsyncCall, cwd=self.tree_base_path) == 0:
             return True
