@@ -219,17 +219,21 @@ class BNIEncodingWorker(threading.Thread):
     def setup_next_image(self):
         self.cur_tif = self.queue.pop()
         self.generate_basename()
+        self.file_stem = os.path.basename(self.basename)
+
         self.cur_jpg = os.path.normpath(
             os.path.dirname(self.cur_tif) + '/' +
             self.config.get('Locations', 'relative_location_jpg') +
             '.'.join((self.file_stem, 'jpg'))
         )
         self.cur_typeless_path = os.path.normpath(os.path.dirname(self.cur_tif) + '/../')
+
         new_tif_path = os.path.join(self.cur_typeless_path, os.path.basename(self.cur_tif))
-        new_jpg_path = os.path.join(self.cur_typeless_path, os.path.basename(self.cur_jpg))
         os.symlink(self.cur_tif, new_tif_path)
         self.cur_tif = new_tif_path
-        self.generate_basename()
-        self.file_stem = os.path.basename(self.basename)
+
+        new_jpg_path = os.path.join(self.cur_typeless_path, os.path.basename(self.cur_jpg))
         os.symlink(self.cur_jpg, new_jpg_path)
         self.cur_jpg = new_jpg_path
+
+        self.generate_basename()
