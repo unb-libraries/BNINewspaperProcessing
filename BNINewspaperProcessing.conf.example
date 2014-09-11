@@ -3,6 +3,7 @@ input_path=/home/imaging/bni_to_process
 bni_output_path=/home/imaging/bni_to_process
 lib_output_path=/home/imaging/bni_to_process
 tmp_path=/tmp
+relative_location_jpg=../Jpgs/
 
 [Threading]
 number_workers=2
@@ -12,6 +13,10 @@ sleep_time=60
 log_file=/tmp/newspaperEncoding.log
 log_format=%%(asctime)s %%(levelname)s %%(message)s
 log_level=DEBUG
+
+[MinimumSizes]
+min_size_jpg=2000000
+min_size_tif=16000000
 
 [GraphicsMagick]
 gm_bin_path=/usr/bin/gm
