@@ -230,6 +230,6 @@ class BNIEncodingWorker(threading.Thread):
         os.symlink(self.cur_tif, new_tif_path)
         self.cur_tif = new_tif_path
         self.generate_basename()
+        self.file_stem = os.path.basename(self.basename)
         os.symlink(self.cur_jpg, new_jpg_path)
         self.cur_jpg = new_jpg_path
-        self.file_stem = os.path.basename(self.basename)
