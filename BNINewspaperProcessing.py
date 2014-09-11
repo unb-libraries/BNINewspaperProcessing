@@ -97,8 +97,8 @@ if __name__ == "__main__":
     daemon = BNIEncodingDaemon(
         options.config_file,
         options.pid_filepath,
-        stdout=options.stdout,
-        stderr=options.stderr,
+        options.stdout,
+        options.stderr,
     )
     if options.action_stop:
         print "Stopping " + sys.argv[0]
