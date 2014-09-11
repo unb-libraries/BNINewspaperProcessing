@@ -96,7 +96,9 @@ class BNIEncodingWorker(threading.Thread):
             '-a',
             '--relative',
             cur_file_relative_dir + '/' + '.'.join((os.path.basename(self.basename), 'tif')),
-            self.bni_output_path,
+            cur_file_relative_dir + '/' + '.'.join((os.path.basename(self.basename), 'hocr')),
+            cur_file_relative_dir + '/' + '.'.join((os.path.basename(self.basename), 'txt')),
+            self.bni_output_path + '/',
         ]
         if subprocess.call(rsyncCall, cwd=self.tree_base_path) == 0:
             return True
