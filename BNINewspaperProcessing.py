@@ -12,6 +12,7 @@ import it if the surrogate type ID is requested in the SQS message.
 """
 
 from lib.BNIEncodingDaemon import BNIEncodingDaemon
+from lib.simpleDaemon import Daemon
 from optparse import OptionParser
 from os import path as path
 import sys
@@ -89,7 +90,7 @@ if __name__ == "__main__":
 
     if options.action_stop:
         print "Stopping " + sys.argv[0]
-        daemon = BNIEncodingDaemon(
+        daemon = Daemon(
             options.pid_filepath,
         )
         daemon.stop()
