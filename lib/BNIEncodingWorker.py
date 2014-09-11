@@ -17,6 +17,7 @@ class BNIEncodingWorker(threading.Thread):
         self.cur_jpg = ''
         self.cur_typeless_path = ''
         self.basename = ''
+        self.file_stem = ''
         self.tree_base_path = tree_base_path
         self.worker_id = worker_id
         self.init_config(config)
@@ -97,14 +98,22 @@ class BNIEncodingWorker(threading.Thread):
             '-a',
             '-L',
             '--relative',
-            cur_file_relative_dir + '/' + '.'.join((os.path.basename(self.basename), 'tif')),
-            cur_file_relative_dir + '/' + '.'.join((os.path.basename(self.basename), 'hocr')),
-            cur_file_relative_dir + '/' + '.'.join((os.path.basename(self.basename), 'txt')),
+            cur_file_relative_dir + '/' + '.'.join((self.file_stem, 'hocr')),
+            cur_file_relative_dir + '/' + '.'.join((self.file_stem, 'txt')),
+            cur_file_relative_dir + '/' + '.'.join((self.file_stem, 'tif')),
             self.bni_output_path + '/',
         ]
         if subprocess.call(rsyncCall, cwd=self.tree_base_path) == 0:
-            os.remove(self.cur_tif)
-            return True
+            os.unlink(self.cur_tif)
+            return self.generate_sha1(
+                self.bni_output_path + '/' + cur_file_relative_dir,
+                self.file_stem,
+                [
+                    '.'.join((self.file_stem, 'hocr')),
+                    '.'.join((self.file_stem, 'txt')),
+                    '.'.join((self.file_stem, 'tif')),
+                ]
+            )
         return False
 
     def cp_lib_out(self):
@@ -114,29 +123,34 @@ class BNIEncodingWorker(threading.Thread):
             '-a',
             '-L',
             '--relative',
-            cur_file_relative_dir + '/' + '.'.join((os.path.basename(self.basename), 'hocr')),
-            cur_file_relative_dir + '/' + '.'.join((os.path.basename(self.basename), 'txt')),
-            cur_file_relative_dir + '/' + '.'.join((os.path.basename(self.basename), 'jpg')),
+            cur_file_relative_dir + '/' + '.'.join((self.file_stem, 'hocr')),
+            cur_file_relative_dir + '/' + '.'.join((self.file_stem, 'txt')),
+            cur_file_relative_dir + '/' + '.'.join((self.file_stem, 'jpg')),
             self.lib_output_path + '/',
         ]
         if subprocess.call(rsyncCall, cwd=self.tree_base_path) == 0:
             os.unlink(self.cur_jpg)
-            return True
+            return self.generate_sha1(
+                self.lib_output_path + '/' + cur_file_relative_dir,
+                self.file_stem,
+                [
+                    '.'.join((self.file_stem, 'hocr')),
+                    '.'.join((self.file_stem, 'txt')),
+                    '.'.join((self.file_stem, 'jpg')),
+                ]
+            )
         return False
 
-    def generate_sha1(self):
-        sha1sum_filename = '.'.join((self.basename, 'sha1'))
-        sha1sum_filep = open(sha1sum_filename, "w")
+    def generate_sha1(self, path, output_file, filenames):
+        sha1sum_filep = open(output_file, "w")
         sha1sum_call = [
             '/usr/bin/sha1sum',
-            os.path.basename(self.cur_tif),
-            '.'.join((os.path.basename(self.basename), 'jpg')),
-            '.'.join((os.path.basename(self.basename), 'hocr')),
         ]
-        if subprocess.call(sha1sum_call, stdout=sha1sum_filep, cwd=os.path.dirname(self.cur_tif)) == 0:
-            self.logger.info('Worker %s succeded in calculating SHA1sum of original file %s.', self.worker_id, sha1sum_filename)
+        sha1sum_call.extend(filenames)
+        if subprocess.call(sha1sum_call, stdout=sha1sum_filep, cwd=path) == 0:
+            self.logger.info('Worker %s succeded in calculating SHA1sum of files for %s.', self.worker_id, path)
             return True
-        self.logger.info('Worker %s failed in calculating SHA1sum of original file %s.', self.worker_id, sha1sum_filename)
+        self.logger.info('Worker %s failed in calculating SHA1sum of files for %s.', self.worker_id, path)
         return False
 
     def generate_ocr(self):
@@ -208,7 +222,7 @@ class BNIEncodingWorker(threading.Thread):
         self.cur_jpg = os.path.normpath(
             os.path.dirname(self.cur_tif) + '/' +
             self.config.get('Locations', 'relative_location_jpg') +
-            '.'.join((os.path.basename(self.basename), 'jpg'))
+            '.'.join((self.file_stem, 'jpg'))
         )
         self.cur_typeless_path = os.path.normpath(os.path.dirname(self.cur_tif) + '/../')
         new_tif_path = os.path.join(self.cur_typeless_path, os.path.basename(self.cur_tif))
@@ -218,3 +232,4 @@ class BNIEncodingWorker(threading.Thread):
         self.generate_basename()
         os.symlink(self.cur_jpg, new_jpg_path)
         self.cur_jpg = new_jpg_path
+        self.file_stem = os.path.basename(self.basename)
