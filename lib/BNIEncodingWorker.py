@@ -61,6 +61,7 @@ class BNIEncodingWorker(threading.Thread):
                   "convert",
                   self.cur_tif
                   ]
+
         self.append_additional_encode_options(gm_call, 'gm_surrogate_convert_options', 'GraphicsMagick')
         gm_call.append(surrogate_output_filepath)
         if subprocess.call(gm_call) == 0:
@@ -69,6 +70,7 @@ class BNIEncodingWorker(threading.Thread):
         else:
             self.logger.info('Worker %s failed encoding HOCR surrogate to tesseract input file %s.', self.worker_id, surrogate_output_filepath)
             return False
+
         tesseractCall = [
             self.config.get('Tesseract', 'tesseract_bin_path'),
             surrogate_output_filepath,
@@ -76,6 +78,7 @@ class BNIEncodingWorker(threading.Thread):
             "-l", self.language,
             'hocr',
         ]
+
         self.log_encode_begin()
         if subprocess.call(tesseractCall) == 0:
             os.remove(surrogate_output_filepath)
@@ -118,9 +121,11 @@ class BNIEncodingWorker(threading.Thread):
 
     def generate_sha1(self, path, output_file, filenames):
         sha1sum_filep = open(os.path.join(path,output_file), "w")
+
         sha1sum_call = [
             '/usr/bin/sha1sum',
         ]
+
         sha1sum_call.extend(filenames)
         if subprocess.call(sha1sum_call, stdout=sha1sum_filep, cwd=path) == 0:
             self.logger.info('Worker %s succeded in calculating SHA1sum of files for %s.', self.worker_id, path)
