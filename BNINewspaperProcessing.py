@@ -18,7 +18,7 @@ import sys
 
 
 def check_options(options, parser):
-    if options.action_start or options.action_restart:
+    if options.action_start:
         if options.config_file is None or not path.exists(options.config_file):
             parser.print_help()
             print "\nERROR: Cannot read configuration file! (--config)"
@@ -30,7 +30,7 @@ def check_options(options, parser):
             )
     ):
         parser.print_help()
-        print "\nERROR: Please specify ONE of [--start, --stop, --restart]"
+        print "\nERROR: Please specify ONE of [--start, --stop]"
         sys.exit(2)
 
 
