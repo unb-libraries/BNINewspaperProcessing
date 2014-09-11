@@ -8,7 +8,7 @@ Based off the 'simple unix/linux daemon in Python' by by Sander Marechal.
 import sys, os, time, atexit
 from signal import SIGTERM
 
-class Daemon:
+class Daemon(object):
     def __init__(self, pidfile, stdin='/dev/null', stdout='/dev/null', stderr='/dev/null'):
         self.stdin = stdin
         self.stdout = stdout
