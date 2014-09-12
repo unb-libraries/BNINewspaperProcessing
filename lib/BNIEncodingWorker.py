@@ -76,8 +76,10 @@ class BNIEncodingWorker(threading.Thread):
             pass
             # self.log_transaction()
             self.remove_originals()
+            self.log_worker_stage(17)
 
     def generate_hocr(self):
+        self.log_worker_stage(8)
         self.logger.info('Worker %s generating OCR for %s.', self.worker_id, self.cur_tif)
         surrogate_output_filepath = '.'.join( (self.basename, 'tiff'))
 
@@ -108,8 +110,10 @@ class BNIEncodingWorker(threading.Thread):
         if subprocess.call(tesseractCall) == 0:
             os.remove(surrogate_output_filepath)
             return True
+            self.log_worker_stage(10)
         os.remove(surrogate_output_filepath)
         self.log_encode_fail()
+        self.log_worker_stage(9)
         return False
 
     def init_config(self, config):
@@ -159,12 +163,14 @@ class BNIEncodingWorker(threading.Thread):
         return False
 
     def generate_ocr(self):
+        self.log_worker_stage(11)
         with open('.'.join((self.basename, 'hocr')), "r") as hocr_file_p:
             hocr_file_string=hocr_file_p.read().replace('\n', '')
 
         ocr_file_p = open('.'.join((self.basename, 'txt')), "w")
         ocr_file_p.write(self.distill_hocr_to_ocr(hocr_file_string))
         ocr_file_p.close()
+        self.log_worker_stage(13)
         return True
 
     def generate_basename(self):
@@ -204,17 +210,30 @@ class BNIEncodingWorker(threading.Thread):
         cur_min_size = int(self.config.get('MinimumSizes', 'min_size_tif'))
         cur_tif_size = os.path.getsize(self.cur_tif)
         self.logger.info('Worker %s checking TIF Size %s vs %s.', self.worker_id, cur_min_size, cur_tif_size)
-        return self.check_file_size(self.cur_tif, cur_min_size)
+        if self.check_file_size(self.cur_tif, cur_min_size):
+            self.log_worker_stage(3)
+            return True
+        self.log_worker_stage(2)
+        return False
+
 
     def check_jpg_exits(self):
         self.logger.info('Worker %s checking If JPG exists %s.', self.worker_id, self.cur_jpg)
-        return os.path.isfile(self.cur_jpg)
+        if os.path.isfile(self.cur_jpg):
+            self.log_worker_stage(5)
+            return True
+        self.log_worker_stage(4)
+        return False
 
     def check_jpg_size(self):
         cur_min_size = int(self.config.get('MinimumSizes', 'min_size_jpg'))
         cur_jpg_size = os.path.getsize(self.cur_jpg)
         self.logger.info('Worker %s checking JPG Size %s vs %s.', self.worker_id, cur_min_size, cur_jpg_size)
-        return self.check_file_size(self.cur_jpg, cur_min_size)
+        if self.check_file_size(self.cur_jpg, cur_min_size):
+            self.log_worker_stage(7)
+            return True
+        self.log_worker_stage(6)
+        return False
 
     def check_file_size(self, file_path, minimum_size):
         if int(os.path.getsize(file_path)) > int(minimum_size):
