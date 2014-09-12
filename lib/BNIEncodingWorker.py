@@ -40,6 +40,7 @@ class BNIEncodingWorker(threading.Thread):
                 self.init_mysql()
             except:
                 break
+            self.log_worker_config()
 
             self.logger.info('Worker %s does not have a task assigned. Looking for one.', self.worker_id)
             self.logger.info('Worker %s reports queue length is currently %s.', self.worker_id, len(self.queue))
