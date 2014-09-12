@@ -4,10 +4,14 @@ Core worker class for generating OCR for BNINewspaperMicroservices.
 """
 
 from bs4 import BeautifulSoup
+import MySQLdb
 import os
 import re
 import subprocess
 import threading
+
+import socket
+import platform
 
 
 class BNIEncodingWorker(threading.Thread):
@@ -18,6 +22,7 @@ class BNIEncodingWorker(threading.Thread):
         self.cur_typeless_path = ''
         self.basename = ''
         self.file_stem = ''
+        self.db = ''
         self.tree_base_path = tree_base_path
         self.worker_id = worker_id
         self.init_config(config)
@@ -30,6 +35,12 @@ class BNIEncodingWorker(threading.Thread):
 
     def run(self):
         while True:
+            self.logger.info('Worker %s Initializing MySQL Connection.', self.worker_id)
+            try:
+                self.init_mysql()
+            except:
+                break
+
             self.logger.info('Worker %s does not have a task assigned. Looking for one.', self.worker_id)
             self.logger.info('Worker %s reports queue length is currently %s.', self.worker_id, len(self.queue))
             try:
@@ -38,6 +49,14 @@ class BNIEncodingWorker(threading.Thread):
                 self.process_file()
             except:
                 break
+
+    def init_mysql(self):
+        self.db = MySQLdb.connect(
+            host=self.config.get('MySQL', 'mysql_host'),
+            user=self.config.get('MySQL', 'mysql_user'),
+            passwd=self.config.get('MySQL', 'mysql_pw'),
+            db=self.config.get('MySQL', 'mysql_db')
+        )
 
     def process_file(self):
         if (self.check_tif_size() and
@@ -198,9 +217,10 @@ class BNIEncodingWorker(threading.Thread):
 
     def remove_originals(self):
         os.unlink(self.cur_jpg)
-	os.unlink(self.cur_tif)
+        os.unlink(self.cur_tif)
         os.unlink('.'.join((self.basename, 'hocr')))
         os.unlink('.'.join((self.basename, 'txt')))
+        return True
 
     def setup_next_image(self):
         self.cur_tif = self.queue.pop()
@@ -223,3 +243,31 @@ class BNIEncodingWorker(threading.Thread):
         self.cur_jpg = new_jpg_path
 
         self.generate_basename()
+
+
+    def log_worker_config(self):
+        os_lsb_data = platform.linux_distribution()
+        self.db.execute("INSERT IGNORE INTO configuration " +
+                        "('hostname', 'os_id', 'os_release', 'num_workers', 'sleep_time', 'gm_version', 'tesseract_version', 'tesseract_language', 'gm_surrogate_convert_options')" +
+                        " VALUES " +
+                        "(" +
+                        "'" + self.get_hostname() + "'," +
+                        "'" + os_lsb_data[0] + "'," +
+                        "'" + os_lsb_data[1] + "'," +
+                        self.config.get('Threading', 'number_workers') + "," +
+                        self.config.get('Threading', 'sleep_time') + "," +
+                        "'" + self.get_gm_version() + "'," +
+                        "'" + self.get_tesseract_version() + "'," +
+                        "'" + self.config.get('Tesseract', 'tesseract_language') + "'," +
+                        "'" + self.config.get('HOCR', 'gm_surrogate_convert_options') + "')"
+        )
+
+
+    def get_hostname(self):
+        return socket.getfqdn()
+
+    def get_gm_version(self):
+        return os.popen('GraphicsMagick-config --version').read().strip()
+
+    def get_tesseract_version(self):
+        return os.popen('tesseract --version').read().strip().replace("\n", ' ')
