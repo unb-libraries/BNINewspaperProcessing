@@ -14,6 +14,11 @@ log_file=/tmp/newspaperEncoding.log
 log_format=%%(asctime)s %%(levelname)s %%(message)s
 log_level=DEBUG
 
+[MySQL]
+mysql_db=
+mysql_user=
+mysql_pw=
+
 [MinimumSizes]
 min_size_jpg=2000000
 min_size_tif=16000000
