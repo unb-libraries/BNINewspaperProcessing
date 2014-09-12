@@ -6,7 +6,7 @@ CREATE TABLE configuration (
   num_workers TINYINT UNSIGNED,
   sleep_time SMALLINT UNSIGNED,
   gm_version VARCHAR(64),
-  tesseract_version VARCHAR(64),
+  tesseract_version VARCHAR(128),
   tesseract_language VARCHAR(32),
   gm_surrogate_convert_options VARCHAR(256)
 );
