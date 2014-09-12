@@ -251,7 +251,7 @@ class BNIEncodingWorker(threading.Thread):
     def log_worker_config(self):
         os_lsb_data = platform.linux_distribution()
         self.db_cur.execute("INSERT IGNORE INTO configuration " +
-                        "('hostname', 'os_id', 'os_release', 'num_workers', 'sleep_time', 'gm_version', 'tesseract_version', 'tesseract_language', 'gm_surrogate_convert_options')" +
+                        "(hostname, os_id, os_release, num_workers, sleep_time, gm_version, tesseract_version, tesseract_language, gm_surrogate_convert_options)" +
                         " VALUES " +
                         "(" +
                         "'" + self.get_hostname() + "'," +
