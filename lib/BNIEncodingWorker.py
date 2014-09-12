@@ -319,6 +319,6 @@ class BNIEncodingWorker(threading.Thread):
             self.db.commit()
             self.mysql_config_id = self.db_cur.lastrowid
         else:
-            self.db_cur.execute("UPDATE images SET status_id=" + status_id + " WHERE filepath='" + cur_typeless_relative + "'")
+            self.db_cur.execute("UPDATE images SET status_id=" + str(status_id) + " WHERE filepath='" + cur_typeless_relative + "'")
             self.db.commit()
         return True
