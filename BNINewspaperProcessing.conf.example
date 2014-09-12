@@ -26,9 +26,6 @@ min_size_tif=16000000
 [GraphicsMagick]
 gm_bin_path=/usr/bin/gm
 
-[Kakadu]
-kakadu_kdu_compress_path=/usr/local/bin/kdu_compress
-
 [Tesseract]
 tesseract_bin_path=/usr/bin/tesseract
 tesseract_language=eng
