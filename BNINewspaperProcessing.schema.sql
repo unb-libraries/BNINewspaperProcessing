@@ -1,8 +1,8 @@
 CREATE TABLE configuration (
   config_id MEDIUMINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
   hostname VARCHAR(128),
-  os_base VARCHAR(64),
-  os_version VARCHAR(64),
+  os_id VARCHAR(64),
+  os_release VARCHAR(64),
   num_workers TINYINT UNSIGNED,
   sleep_time SMALLINT UNSIGNED,
   gm_version VARCHAR(64),
