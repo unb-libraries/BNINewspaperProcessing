@@ -38,10 +38,8 @@ class BNIEncodingWorker(threading.Thread):
     def run(self):
 
         self.logger.info('Worker %s Initializing MySQL Connection.', self.worker_id)
-        try:
-            self.init_mysql()
-        except:
-            break
+        self.init_mysql()
+
         self.log_worker_config()
 
         while True:
