@@ -24,6 +24,7 @@ class BNIEncodingWorker(threading.Thread):
         self.file_stem = ''
         self.db = ''
         self.db_cur = ''
+        self.mysql_config_id = '0'
         self.tree_base_path = tree_base_path
         self.worker_id = worker_id
         self.init_config(config)
@@ -47,6 +48,7 @@ class BNIEncodingWorker(threading.Thread):
             self.logger.info('Worker %s reports queue length is currently %s.', self.worker_id, len(self.queue))
             try:
                 self.setup_next_image()
+                self.log_worker_stage(1)
                 self.logger.info('Worker %s set to work on %s.', self.worker_id, self.cur_tif)
                 self.process_file()
             except:
@@ -266,6 +268,7 @@ class BNIEncodingWorker(threading.Thread):
                         "'" + self.config.get('HOCR', 'gm_surrogate_convert_options') + "')"
         )
         self.db.commit()
+        self.mysql_config_id = self.db_cur.lastrowid
 
     def get_hostname(self):
         return socket.getfqdn()
@@ -277,3 +280,19 @@ class BNIEncodingWorker(threading.Thread):
         sub_p = subprocess.Popen([self.config.get('Tesseract', 'tesseract_bin_path'),'--version'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         (tesseract_stdout, tesseract_stderr) = sub_p.communicate()
         return tesseract_stderr.strip().replace("\n", ' ')
+
+    def log_worker_stage(self, status_id, update=True):
+
+        self.db_cur.execute("INSERT IGNORE INTO images " +
+                        "(config_id, filepath, status_id, queue_datestamp, start_datestamp, latest_datestamp)" +
+                        " VALUES " +
+                        "(" +
+                        self.mysql_config_id + "," +
+                        "'" + self.cur_typeless_path + '/' + self.file_stem + ".tif'," +
+                        status_id + "," +
+                        "NOW()," +
+                        "NOW()," +
+                        "NOW())"
+        )
+        self.db.commit()
+        self.mysql_config_id = self.db_cur.lastrowid
