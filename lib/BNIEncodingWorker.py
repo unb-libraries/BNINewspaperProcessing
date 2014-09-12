@@ -36,14 +36,15 @@ class BNIEncodingWorker(threading.Thread):
         self.queue = queue
 
     def run(self):
-        while True:
-            self.logger.info('Worker %s Initializing MySQL Connection.', self.worker_id)
-            try:
-                self.init_mysql()
-            except:
-                break
-            self.log_worker_config()
 
+        self.logger.info('Worker %s Initializing MySQL Connection.', self.worker_id)
+        try:
+            self.init_mysql()
+        except:
+            break
+        self.log_worker_config()
+
+        while True:
             self.logger.info('Worker %s does not have a task assigned. Looking for one.', self.worker_id)
             self.logger.info('Worker %s reports queue length is currently %s.', self.worker_id, len(self.queue))
             try:
