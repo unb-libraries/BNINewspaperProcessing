@@ -14,11 +14,12 @@ CREATE TABLE configuration (
 CREATE TABLE images (
   id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
   config_id MEDIUMINT UNSIGNED,
-  hostname VARCHAR(512),
+  filepath VARCHAR(512),
   status_id TINYINT UNSIGNED,
   queue_datestamp DATETIME,
   start_datestamp DATETIME,
-  latest_datestamp DATETIME
+  latest_datestamp DATETIME,
+  UNIQUE (filepath)
 );
 
 CREATE TABLE status (
