@@ -273,4 +273,4 @@ class BNIEncodingWorker(threading.Thread):
         return os.popen('GraphicsMagick-config --version').read().strip()
 
     def get_tesseract_version(self):
-        return os.popen('tesseract --version').read().strip().replace("\n", ' ')
+        return os.popen('tesseract --version', stderr=subprocess.PIPE).read().strip().replace("\n", ' ')
