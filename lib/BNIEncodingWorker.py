@@ -265,7 +265,7 @@ class BNIEncodingWorker(threading.Thread):
                         "'" + self.config.get('Tesseract', 'tesseract_language') + "'," +
                         "'" + self.config.get('HOCR', 'gm_surrogate_convert_options') + "')"
         )
-
+        self.db.commit()
 
     def get_hostname(self):
         return socket.getfqdn()
