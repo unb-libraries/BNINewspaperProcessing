@@ -15,6 +15,7 @@ log_format=%%(asctime)s %%(levelname)s %%(message)s
 log_level=DEBUG
 
 [MySQL]
+mysql_host=
 mysql_db=
 mysql_user=
 mysql_pw=
