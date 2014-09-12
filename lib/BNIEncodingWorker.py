@@ -281,18 +281,25 @@ class BNIEncodingWorker(threading.Thread):
         (tesseract_stdout, tesseract_stderr) = sub_p.communicate()
         return tesseract_stderr.strip().replace("\n", ' ')
 
-    def log_worker_stage(self, status_id, update=True):
+    def log_worker_stage(self, status_id):
+        cur_typeless_file = self.cur_typeless_path + '/' + self.file_stem + ".tif"
+        cur_typeless_relative = cur_typeless_file.replace(self.tree_base_path + '/', '')
 
-        self.db_cur.execute("INSERT IGNORE INTO images " +
-                        "(config_id, filepath, status_id, queue_datestamp, start_datestamp, latest_datestamp)" +
-                        " VALUES " +
-                        "(" +
-                        self.mysql_config_id + "," +
-                        "'" + self.cur_typeless_path + '/' + self.file_stem + ".tif'," +
-                        status_id + "," +
-                        "NOW()," +
-                        "NOW()," +
-                        "NOW())"
-        )
-        self.db.commit()
-        self.mysql_config_id = self.db_cur.lastrowid
+        if (status_id == 1):
+            self.db_cur.execute("INSERT IGNORE INTO images " +
+                            "(config_id, filepath, status_id, queue_datestamp, start_datestamp, latest_datestamp)" +
+                            " VALUES " +
+                            "(" +
+                            str(self.mysql_config_id) + "," +
+                            "'" + cur_typeless_relative + "'," +
+                            str(status_id) + "," +
+                            "NOW()," +
+                            "NOW()," +
+                            "NOW())"
+            )
+            self.db.commit()
+            self.mysql_config_id = self.db_cur.lastrowid
+        else:
+            self.db_cur.execute("UPDATE images SET status_id=" + status_id + " WHERE filepath='" + cur_typeless_relative + "'")
+            self.db.commit()
+        return True
