@@ -23,6 +23,7 @@ class BNIEncodingWorker(threading.Thread):
         self.basename = ''
         self.file_stem = ''
         self.db = ''
+        self.db_cur = ''
         self.tree_base_path = tree_base_path
         self.worker_id = worker_id
         self.init_config(config)
@@ -58,6 +59,7 @@ class BNIEncodingWorker(threading.Thread):
             passwd=self.config.get('MySQL', 'mysql_pw'),
             db=self.config.get('MySQL', 'mysql_db')
         )
+        self.db_cur = self.db.cursor()
 
     def process_file(self):
         if (self.check_tif_size() and
@@ -248,7 +250,7 @@ class BNIEncodingWorker(threading.Thread):
 
     def log_worker_config(self):
         os_lsb_data = platform.linux_distribution()
-        self.db.execute("INSERT IGNORE INTO configuration " +
+        self.db_cur.execute("INSERT IGNORE INTO configuration " +
                         "('hostname', 'os_id', 'os_release', 'num_workers', 'sleep_time', 'gm_version', 'tesseract_version', 'tesseract_language', 'gm_surrogate_convert_options')" +
                         " VALUES " +
                         "(" +
