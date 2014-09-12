@@ -57,7 +57,8 @@ class BNIEncodingWorker(threading.Thread):
             host=self.config.get('MySQL', 'mysql_host'),
             user=self.config.get('MySQL', 'mysql_user'),
             passwd=self.config.get('MySQL', 'mysql_pw'),
-            db=self.config.get('MySQL', 'mysql_db')
+            db=self.config.get('MySQL', 'mysql_db'),
+            charset="utf8"
         )
         self.db_cur = self.db.cursor()
 
