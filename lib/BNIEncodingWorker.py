@@ -50,7 +50,7 @@ class BNIEncodingWorker(threading.Thread):
         ):
             pass
             # self.log_transaction()
-            # self.remove_originals()
+            self.remove_originals()
 
     def generate_hocr(self):
         self.logger.info('Worker %s generating OCR for %s.', self.worker_id, self.cur_tif)
@@ -195,6 +195,12 @@ class BNIEncodingWorker(threading.Thread):
         if int(os.path.getsize(file_path)) > int(minimum_size):
             return True
         return False
+
+    def remove_originals(self):
+        os.unlink(self.cur_jpg)
+	os.unlink(self.cur_tif)
+        os.unlink('.'.join((self.basename, 'hocr')))
+        os.unlink('.'.join((self.basename, 'txt')))
 
     def setup_next_image(self):
         self.cur_tif = self.queue.pop()
