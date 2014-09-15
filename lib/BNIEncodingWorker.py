@@ -72,7 +72,7 @@ class BNIEncodingWorker(threading.Thread):
         self.hocr_surrogate_filepath = os.path.join(
             self.tmp_root,
             self.tree_target_dir,
-            self.file_stem + 'tif'
+            self.file_stem + '.tiff'
         )
         gm_call = [
             self.config.get('GraphicsMagick', 'gm_bin_path'),
