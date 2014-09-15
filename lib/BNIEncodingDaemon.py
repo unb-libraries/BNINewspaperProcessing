@@ -81,7 +81,7 @@ class BNIEncodingDaemon(Daemon):
             files = [fi for fi in files if fi.endswith(".tif")]
             for cur_file in files:
                 self.queue.update([os.path.join(root, cur_file)])
-                self.log_queue_insert(cur_file)
+            self.log_queue_insert(files)
 
     def init_mysql(self):
         return MySQLdb.connect(
@@ -92,22 +92,17 @@ class BNIEncodingDaemon(Daemon):
             charset="utf8"
         )
 
-    def log_queue_insert(self, file_path, status_id=1):
-        file_stem = os.path.basename(file_path)
-        cur_typeless_path = os.path.normpath(os.path.dirname(file_path) + '/../')
-        cur_typeless_file = cur_typeless_path + '/' + file_stem
-        cur_typeless_relative = cur_typeless_file.replace(self.input_path + '/', '')
+    def log_queue_insert(self, files, status_id=1):
+        insert_queue_string = "INSERT IGNORE INTO images (config_id, filepath, status_id, queue_datestamp, latest_datestamp) VALUES"
 
-        self.db_cur.execute("INSERT IGNORE INTO images " +
-                        '(config_id, filepath, status_id, queue_datestamp, latest_datestamp)' +
-                        " VALUES " +
-                        "(" +
-                        str(self.mysql_config_id) + "," +
-                        "'" + cur_typeless_relative + "'," +
-                        str(status_id) + "," +
-                        "NOW()," +
-                        "NOW())"
-        )
+        for cur_file in files:
+            file_stem = os.path.basename(cur_file)
+            cur_typeless_path = os.path.normpath(os.path.dirname(cur_file) + '/../')
+            cur_typeless_file = cur_typeless_path + '/' + file_stem
+            cur_typeless_relative = cur_typeless_file.replace(self.input_path + '/', '')
+            insert_queue_string += "(" + str(self.mysql_config_id) + "," + "'" + cur_typeless_relative + "'," + str(status_id) + "," + "NOW()," + "NOW()),"
+
+        self.db_cur.execute(insert_queue_string.rstrip(","))
         return self.db.commit()
 
     def log_daemon_config(self):
