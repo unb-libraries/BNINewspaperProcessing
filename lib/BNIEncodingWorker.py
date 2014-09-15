@@ -45,7 +45,7 @@ class BNIEncodingWorker(threading.Thread):
             self.logger.info('Worker %s reports queue length is currently %s.', self.worker_id, len(self.queue))
             try:
                 self.setup_next_image()
-                self.log_worker_stage(1)
+                self.log_worker_stage(2)
                 self.logger.info('Worker %s set to work on %s.', self.worker_id, self.cur_tif)
                 self.process_file()
             except:
