@@ -20,8 +20,8 @@ class BNIEncodingDaemon(Daemon):
     def __init__(self, pid_filepath, stdin_super='/dev/null', stdout_super='/dev/null', stderr_super='/dev/null', config_file=''):
         super(BNIEncodingDaemon, self).__init__(pid_filepath, stdin_super, stdout_super, stderr_super)
         self.init_config(config_file)
-        self.db = self.init_mysql()
-        self.db_cur = self.db.cursor()
+        self.db = None
+        self.db_cur = None
         self.init_logger()
         self.queue = set()
         self.mysql_config_id = None
@@ -94,6 +94,8 @@ class BNIEncodingDaemon(Daemon):
         )
 
     def log_queue_insert(self, files, status_id=1):
+        self.db = self.init_mysql()
+        self.db_cur = self.db.cursor()
         insert_queue_string = "INSERT IGNORE INTO images (config_id, filepath, status_id, queue_datestamp, latest_datestamp) VALUES"
 
         for cur_file in files:
@@ -104,9 +106,14 @@ class BNIEncodingDaemon(Daemon):
             insert_queue_string += " (" + str(self.mysql_config_id) + "," + "'" + cur_typeless_relative + "'," + str(status_id) + "," + "NOW()," + "NOW()),"
 
         self.db_cur.execute(insert_queue_string.rstrip(","))
-        return self.db.commit()
+        self.db.commit()
+
+        self.db_cur.close()
+        self.db.close()
 
     def log_daemon_config(self):
+        self.db = self.init_mysql()
+        self.db_cur = self.db.cursor()
         os_lsb_data = platform.linux_distribution()
         self.db_cur.execute("INSERT IGNORE INTO configuration " +
                         "(hostname, os_id, os_release, num_workers, sleep_time, gm_version, tesseract_version, tesseract_language, gm_surrogate_convert_options)" +
@@ -124,6 +131,8 @@ class BNIEncodingDaemon(Daemon):
         )
         self.db.commit()
         self.mysql_config_id = self.db_cur.lastrowid
+        self.db_cur.close()
+        self.db.close()
         return True
 
     def get_hostname(self):
