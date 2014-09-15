@@ -248,7 +248,10 @@ class BNIEncodingWorker(threading.Thread):
 
     def setup_next_image(self):
         # Get image from queue
-        self.cur_tif = self.queue.pop()
+        self.cur_tif = self.get_next_queue_item()
+        if not self.cur_tif:
+            raise Exception("No queue items left!")
+
         self.file_stem = os.path.basename(
             self.cur_tif[0:self.cur_tif.rindex('.')]
         )
@@ -328,3 +331,6 @@ class BNIEncodingWorker(threading.Thread):
             if exc.errno == errno.EEXIST and os.path.isdir(path):
                 pass
             else: raise
+
+    def get_next_queue_item(self):
+        return self.queue.pop()
