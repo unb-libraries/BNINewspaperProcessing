@@ -82,7 +82,7 @@ class BNIEncodingDaemon(Daemon):
             if len(files) > 0:
                 for cur_file in files:
                     self.queue.update([os.path.join(root, cur_file)])
-                self.log_queue_insert(files)
+        self.log_queue_insert(self.queue)
 
     def init_mysql(self):
         return MySQLdb.connect(
