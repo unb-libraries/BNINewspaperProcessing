@@ -79,9 +79,10 @@ class BNIEncodingDaemon(Daemon):
         self.logger.info('Daemon looking for jobs for workers.')
         for root, subFolders, files in os.walk(self.input_path):
             files = [fi for fi in files if fi.endswith(".tif")]
-            for cur_file in files:
-                self.queue.update([os.path.join(root, cur_file)])
-            self.log_queue_insert(files)
+            if len(files) > 0:
+                for cur_file in files:
+                    self.queue.update([os.path.join(root, cur_file)])
+                self.log_queue_insert(files)
 
     def init_mysql(self):
         return MySQLdb.connect(
