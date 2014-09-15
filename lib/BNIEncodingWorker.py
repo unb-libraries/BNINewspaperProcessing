@@ -301,6 +301,7 @@ class BNIEncodingWorker(threading.Thread):
             self.tree_target_dir,
             self.file_stem + '.tif'
         )
+        self.unlink_if_exists(self.tmp_tif)
         os.symlink(
             self.cur_tif,
             self.tmp_tif
@@ -310,6 +311,7 @@ class BNIEncodingWorker(threading.Thread):
             self.tree_target_dir,
             self.file_stem + '.jpg'
         )
+        self.unlink_if_exists(self.tmp_jpg)
         os.symlink(
             self.cur_jpg,
             self.tmp_jpg
