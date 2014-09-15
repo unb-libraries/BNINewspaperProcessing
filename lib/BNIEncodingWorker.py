@@ -131,7 +131,7 @@ class BNIEncodingWorker(threading.Thread):
 
         rsyncCall.append(output_path + '/')
 
-        if subprocess.call(rsyncCall, cwd=self.tmp_file_dir) == 0:
+        if subprocess.call(rsyncCall, cwd=self.tmp_path) == 0:
             return self.generate_sha1(
                 output_path + '/' + self.tree_target_dir,
                 '.'.join((self.file_stem, 'sha1')),
@@ -272,7 +272,7 @@ class BNIEncodingWorker(threading.Thread):
         self.tmp_filepath_stem = os.path.join(self.tmp_file_dir, self.file_stem)
 
         # Set the relative TmpFilePathStem
-        self.relative_tmp_filepath_stem = os.path.join(self.tree_target_dir, self.file_stem)
+        self.relative_tmp_filepath_stem = '/'.join((self.tree_target_dir, self.file_stem))
 
 
     def log_worker_stage(self, status_id):
