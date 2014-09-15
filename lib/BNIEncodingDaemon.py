@@ -80,6 +80,7 @@ class BNIEncodingDaemon(Daemon):
             files = [fi for fi in files if fi.endswith(".tif")]
             for cur_file in files:
                 self.queue.update([os.path.join(root, cur_file)])
+                self.log_queue_insert(cur_file)
 
     def init_mysql(self):
         return MySQLdb.connect(
@@ -90,7 +91,7 @@ class BNIEncodingDaemon(Daemon):
             charset="utf8"
         )
 
-    def log_queue_insert(self, file_path, status_id):
+    def log_queue_insert(self, file_path, status_id=1):
         file_basename = file_path[0:file_path.rindex('.')]
         file_stem = os.path.basename(file_basename)
         cur_typeless_path = os.path.normpath(os.path.dirname(file_path) + '/../')
