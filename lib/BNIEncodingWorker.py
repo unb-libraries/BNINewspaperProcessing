@@ -96,7 +96,7 @@ class BNIEncodingWorker(threading.Thread):
         tesseract_call = [
             self.config.get('Tesseract', 'tesseract_bin_path'),
             self.hocr_surrogate_filepath,
-            self.file_stem,
+            self.tmp_filepath_stem,
             "-l", self.language,
             'hocr',
         ]
