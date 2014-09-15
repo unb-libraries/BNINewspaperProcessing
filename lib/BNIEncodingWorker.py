@@ -22,6 +22,7 @@ class BNIEncodingWorker(threading.Thread):
         self.tmp_tif = ''
         self.tmp_jpg = ''
         self.tmp_filepath_stem = ''
+        self.relative_tmp_filepath_stem = ''
         self.hocr_surrogate_filepath = ''
         self.tmp_file_dir = ''
         self.tree_target_dir = ''
@@ -125,7 +126,7 @@ class BNIEncodingWorker(threading.Thread):
             '--relative',
         ]
         for cur_extension in extensions:
-            rsyncCall.append(self.tree_target_dir + '/' + '.'.join((self.file_stem, cur_extension)))
+            rsyncCall.append('.'.join((self.relative_tmp_filepath_stem, cur_extension)))
             sha1_files_to_check.append('.'.join((self.file_stem, cur_extension)))
 
         rsyncCall.append(output_path + '/')
@@ -269,6 +270,9 @@ class BNIEncodingWorker(threading.Thread):
 
         # Set Tmp FilePathStem
         self.tmp_filepath_stem = os.path.join(self.tmp_file_dir, self.file_stem)
+
+        # Set the relative TmpFilePathStem
+        self.relative_tmp_filepath_stem = os.path.join(self.tree_target_dir, self.file_stem)
 
 
     def log_worker_stage(self, status_id):
