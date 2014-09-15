@@ -294,8 +294,7 @@ class BNIEncodingWorker(threading.Thread):
         self.tmp_tif = os.path.join(
             self.tmp_root,
             self.tree_target_dir,
-            self.file_stem,
-            'tif'
+            self.file_stem + '.tif'
         )
         os.symlink(
             self.cur_tif,
@@ -304,8 +303,7 @@ class BNIEncodingWorker(threading.Thread):
         self.tmp_jpg = os.path.join(
             self.tmp_root,
             self.tree_target_dir,
-            self.file_stem,
-            'jpg'
+            self.file_stem + '.jpg'
         )
         os.symlink(
             self.cur_jpg,
