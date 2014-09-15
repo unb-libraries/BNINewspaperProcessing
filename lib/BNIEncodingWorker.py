@@ -21,10 +21,10 @@ class BNIEncodingWorker(threading.Thread):
         self.cur_jpg = None
         self.tmp_tif = None
         self.tmp_jpg = None
+        self.tmp_filepath_stem = None
         self.hocr_surrogate_filepath = None
         self.tmp_file_dir = None
         self.tree_target_dir = None
-        self.basename = None
         self.file_stem = None
         self.db = self.init_mysql()
         self.db_cur = self.db.cursor()
@@ -96,7 +96,7 @@ class BNIEncodingWorker(threading.Thread):
         tesseract_call = [
             self.config.get('Tesseract', 'tesseract_bin_path'),
             self.hocr_surrogate_filepath,
-            self.basename,
+            self.file_stem,
             "-l", self.language,
             'hocr',
         ]
@@ -154,18 +154,15 @@ class BNIEncodingWorker(threading.Thread):
 
     def generate_ocr(self):
         self.log_worker_stage(11)
-        with open('.'.join((self.basename, 'hocr')), "r") as hocr_file_p:
+        with open('.'.join((self.tmp_filepath_stem, 'hocr')), "r") as hocr_file_p:
             hocr_file_string=hocr_file_p.read().replace('\n', '')
 
-        ocr_file_p = open('.'.join((self.basename, 'txt')), "w")
+        ocr_file_p = open('.'.join((self.tmp_filepath_stem, 'txt')), "w")
         ocr_file_p.write(self.distill_hocr_to_ocr(hocr_file_string))
         ocr_file_p.close()
         self.log_worker_stage(13)
         return True
 
-    def generate_basename(self):
-        self.basename = self.cur_tif[0:self.cur_tif.rindex('.')]
-        return True
 
     def append_additional_encode_options(self, call_list, extra_options_variable, encoder_name):
         extra_options = self.config.get('HOCR', extra_options_variable)
@@ -236,12 +233,17 @@ class BNIEncodingWorker(threading.Thread):
         return True
 
     def remove_tempfiles(self):
-        os.unlink(self.tmp_tif)
-        os.unlink(self.tmp_jpg)
-        os.unlink(self.hocr_surrogate_filepath)
-        os.unlink('.'.join((self.basename, 'hocr')))
-        os.unlink('.'.join((self.basename, 'txt')))
-        return True
+        self.unlink_if_exists(self.tmp_tif)
+        self.unlink_if_exists(self.tmp_jpg)
+        self.unlink_if_exists(self.hocr_surrogate_filepath)
+        self.unlink_if_exists('.'.join((self.tmp_filepath_stem, 'hocr')))
+        self.unlink_if_exists('.'.join((self.tmp_filepath_stem, 'txt')))
+
+    def unlink_if_exists(self, file_path):
+        try:
+            os.unlink(file_path)
+        except OSError:
+            pass
 
     def setup_next_image(self):
         # Get image from queue
@@ -264,6 +266,10 @@ class BNIEncodingWorker(threading.Thread):
 
         # Copy TIF to tmp directory, creating folders as we go.
         self.init_tmp_path()
+
+        # Set Tmp FilePathStem
+        self.tmp_filepath_stem = os.path.join(self.tmp_file_dir, self.file_stem)
+
 
     def log_worker_stage(self, status_id):
         tree_filepath = self.tree_target_dir + '/' + self.file_stem + ".tif"
