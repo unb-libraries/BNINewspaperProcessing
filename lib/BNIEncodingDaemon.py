@@ -105,7 +105,7 @@ class BNIEncodingDaemon(Daemon):
     def log_queue_insert(self, files, status_id=1):
         self.db = self.init_mysql()
         self.db_cur = self.db.cursor()
-        insert_queue_string = "INSERT IGNORE INTO images (config_id, filepath, status_id, queue_datestamp, latest_datestamp) VALUES"
+        insert_queue_string = "INSERT INTO images (config_id, filepath, status_id, queue_datestamp, latest_datestamp) VALUES"
 
         for cur_file in files:
             file_stem = os.path.basename(cur_file)
@@ -124,7 +124,7 @@ class BNIEncodingDaemon(Daemon):
         self.db = self.init_mysql()
         self.db_cur = self.db.cursor()
         os_lsb_data = platform.linux_distribution()
-        self.db_cur.execute("INSERT IGNORE INTO configuration " +
+        self.db_cur.execute("INSERT INTO configuration " +
                         "(hostname, os_id, os_release, num_workers, sleep_time, gm_version, tesseract_version, tesseract_language, gm_surrogate_convert_options)" +
                         " VALUES " +
                         "(" +
