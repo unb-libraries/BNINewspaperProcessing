@@ -145,7 +145,12 @@ class BNIEncodingDaemon(Daemon):
         return True
 
     def file_already_queued(self, filepath):
-        check_queued_query = "SELECT COUNT(1) FROM images WHERE filepath = '" + filepath + "'"
+        file_stem = os.path.basename(filepath)
+        cur_typeless_path = os.path.normpath(os.path.dirname(filepath) + '/../')
+        cur_typeless_file = cur_typeless_path + '/' + file_stem
+        cur_typeless_relative = cur_typeless_file.replace(self.input_path + '/', '')
+        check_queued_query = "SELECT COUNT(1) FROM images WHERE filepath = '" + cur_typeless_relative + "'"
+
         self.db_cur.execute(check_queued_query)
         if self.db_cur.fetchone()[0]:
             return True
