@@ -77,11 +77,20 @@ class BNIEncodingDaemon(Daemon):
 
     def update_queue(self):
         self.logger.info('Daemon looking for jobs for workers.')
+
+        self.db = self.init_mysql()
+        self.db_cur = self.db.cursor()
+
         for root, subFolders, files in os.walk(self.input_path):
             files = [fi for fi in files if fi.endswith(".tif")]
             if len(files) > 0:
                 for cur_file in files:
-                    self.queue.update([os.path.join(root, cur_file)])
+                    if not self.file_already_queued(os.path.join(root, cur_file)):
+                        self.queue.update([os.path.join(root, cur_file)])
+
+        self.db_cur.close()
+        self.db.close()
+
         self.log_queue_insert(self.queue)
 
     def init_mysql(self):
@@ -134,6 +143,13 @@ class BNIEncodingDaemon(Daemon):
         self.db_cur.close()
         self.db.close()
         return True
+
+    def file_already_queued(self, filepath):
+        check_queued_query = "SELECT COUNT(1) FROM images WHERE filepath = '" + filepath + "'"
+        self.db_cur.execute(check_queued_query)
+        if self.db_cur.fetchone()[0]:
+            return True
+        return False
 
     def get_hostname(self):
         return socket.getfqdn()
