@@ -17,15 +17,15 @@ class BNIEncodingWorker(threading.Thread):
         threading.Thread.__init__(self)
         self.init_config(config)
         self.logger = None
-        self.cur_tif = None
-        self.cur_jpg = None
-        self.tmp_tif = None
-        self.tmp_jpg = None
-        self.tmp_filepath_stem = None
-        self.hocr_surrogate_filepath = None
-        self.tmp_file_dir = None
-        self.tree_target_dir = None
-        self.file_stem = None
+        self.cur_tif = ''
+        self.cur_jpg = ''
+        self.tmp_tif = ''
+        self.tmp_jpg = ''
+        self.tmp_filepath_stem = ''
+        self.hocr_surrogate_filepath = ''
+        self.tmp_file_dir = ''
+        self.tree_target_dir = ''
+        self.file_stem = ''
         self.db = self.init_mysql()
         self.db_cur = self.db.cursor()
         self.tree_base_path = tree_base_path
