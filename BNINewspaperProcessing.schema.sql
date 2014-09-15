@@ -18,7 +18,8 @@ CREATE TABLE images (
   status_id TINYINT UNSIGNED,
   queue_datestamp DATETIME,
   start_datestamp DATETIME,
-  latest_datestamp DATETIME
+  latest_datestamp DATETIME,
+  UNIQUE (filepath)
 );
 
 CREATE TABLE status (
