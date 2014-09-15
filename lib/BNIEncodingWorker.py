@@ -4,6 +4,7 @@ Core worker class for generating OCR for BNINewspaperMicroservices.
 """
 
 from bs4 import BeautifulSoup
+import MySQLdb
 import os
 import re
 import subprocess
@@ -19,7 +20,7 @@ class BNIEncodingWorker(threading.Thread):
         self.cur_typeless_path = None
         self.basename = None
         self.file_stem = None
-        self.db = super(BNIEncodingWorker, self).init_mysql()
+        self.db = self.init_mysql()
         self.db_cur = self.db.cursor()
         self.tree_base_path = tree_base_path
         self.worker_id = worker_id
@@ -259,3 +260,12 @@ class BNIEncodingWorker(threading.Thread):
             self.db_cur.execute("UPDATE images SET status_id=" + str(status_id) + ", latest_datestamp=NOW() WHERE filepath='" + cur_typeless_relative + "'")
             self.db.commit()
         return True
+
+    def init_mysql(self):
+        return MySQLdb.connect(
+            host=self.config.get('MySQL', 'mysql_host'),
+            user=self.config.get('MySQL', 'mysql_user'),
+            passwd=self.config.get('MySQL', 'mysql_pw'),
+            db=self.config.get('MySQL', 'mysql_db'),
+            charset="utf8"
+        )
