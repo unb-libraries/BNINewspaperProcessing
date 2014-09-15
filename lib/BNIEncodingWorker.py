@@ -4,6 +4,7 @@ Core worker class for generating OCR for BNINewspaperMicroservices.
 """
 
 from bs4 import BeautifulSoup
+import errno
 import MySQLdb
 import os
 import re
@@ -17,10 +18,12 @@ class BNIEncodingWorker(threading.Thread):
         self.init_config(config)
         self.logger = None
         self.cur_tif = None
-        self.orig_tif_filepath = None
-        self.orig_jpg_filepath = None
         self.cur_jpg = None
-        self.cur_typeless_path = None
+        self.tmp_tif = None
+        self.tmp_jpg = None
+        self.hocr_surrogate_filepath = None
+        self.tmp_file_dir = None
+        self.tree_target_dir = None
         self.basename = None
         self.file_stem = None
         self.db = self.init_mysql()
@@ -32,6 +35,7 @@ class BNIEncodingWorker(threading.Thread):
         self.bni_output_path = self.config.get('Locations', 'bni_output_path')
         self.lib_output_path = self.config.get('Locations', 'lib_output_path')
         self.language = self.config.get('Tesseract', 'tesseract_language')
+        self.tmp_root = self.config.get('Locations', 'tmp_path')
         self.queue = queue
 
     def run(self):
@@ -65,37 +69,43 @@ class BNIEncodingWorker(threading.Thread):
     def generate_hocr(self):
         self.log_worker_stage(8)
         self.logger.info('Worker %s generating OCR for %s.', self.worker_id, self.cur_tif)
-        surrogate_output_filepath = '.'.join( (self.basename, 'tiff'))
-
+        self.hocr_surrogate_filepath = os.path.join(
+            self.tmp_root,
+            self.tree_target_dir,
+            self.file_stem,
+            'tif'
+        )
         gm_call = [
-                  self.config.get('GraphicsMagick', 'gm_bin_path'),
-                  "convert",
-                  self.cur_tif
-                  ]
-
+            self.config.get('GraphicsMagick', 'gm_bin_path'),
+            "convert",
+            self.tmp_tif
+        ]
         self.append_additional_encode_options(gm_call, 'gm_surrogate_convert_options', 'GraphicsMagick')
-        gm_call.append(surrogate_output_filepath)
+        gm_call.append(self.hocr_surrogate_filepath)
+
         if subprocess.call(gm_call) == 0:
             self.log_encode_success()
-            self.logger.info('Worker %s succeded in encoding HOCR surrogate to tesseract input file %s.', self.worker_id, surrogate_output_filepath)
+            self.logger.info('Worker %s succeeded in encoding HOCR surrogate to tesseract input file %s.',
+                             self.worker_id,
+                             self.hocr_surrogate_filepath)
         else:
-            self.logger.info('Worker %s failed encoding HOCR surrogate to tesseract input file %s.', self.worker_id, surrogate_output_filepath)
+            self.logger.info('Worker %s failed encoding HOCR surrogate to tesseract input file %s.',
+                             self.worker_id,
+                             self.hocr_surrogate_filepath)
             return False
 
-        tesseractCall = [
+        tesseract_call = [
             self.config.get('Tesseract', 'tesseract_bin_path'),
-            surrogate_output_filepath,
+            self.hocr_surrogate_filepath,
             self.basename,
             "-l", self.language,
             'hocr',
         ]
 
         self.log_encode_begin()
-        if subprocess.call(tesseractCall) == 0:
-            os.remove(surrogate_output_filepath)
-            return True
+        if subprocess.call(tesseract_call) == 0:
             self.log_worker_stage(10)
-        os.remove(surrogate_output_filepath)
+            return True
         self.log_encode_fail()
         self.log_worker_stage(9)
         return False
@@ -108,9 +118,7 @@ class BNIEncodingWorker(threading.Thread):
         self.logger.info('Worker %s appears!', self.worker_id)
 
     def archive_files(self, output_path, extensions):
-        cur_file_relative_dir = self.cur_typeless_path.replace(self.tree_base_path + '/', '')
         sha1_files_to_check=[]
-
         rsyncCall = [
             'rsync',
             '-a',
@@ -118,15 +126,14 @@ class BNIEncodingWorker(threading.Thread):
             '--relative',
         ]
         for cur_extension in extensions:
-            rsyncCall.append(cur_file_relative_dir + '/' + '.'.join((self.file_stem, cur_extension)))
+            rsyncCall.append(self.tree_target_dir + '/' + '.'.join((self.file_stem, cur_extension)))
             sha1_files_to_check.append('.'.join((self.file_stem, cur_extension)))
 
         rsyncCall.append(output_path + '/')
 
         if subprocess.call(rsyncCall, cwd=self.tree_base_path) == 0:
-
             return self.generate_sha1(
-                output_path + '/' + cur_file_relative_dir,
+                output_path + '/' + self.tree_target_dir,
                 '.'.join((self.file_stem, 'sha1')),
                 sha1_files_to_check
             )
@@ -225,49 +232,47 @@ class BNIEncodingWorker(threading.Thread):
         return False
 
     def remove_originals(self):
-        os.unlink(self.orig_tif_filepath)
+        # os.unlink(self.cur_tif)
+        # os.unlink(self.cur_jpg)
         return True
 
     def remove_tempfiles(self):
-        os.unlink(self.cur_jpg)
-        os.unlink(self.cur_tif)
+        os.unlink(self.tmp_tif)
+        os.unlink(self.tmp_jpg)
+        os.unlink(self.hocr_surrogate_filepath)
         os.unlink('.'.join((self.basename, 'hocr')))
         os.unlink('.'.join((self.basename, 'txt')))
         return True
 
     def setup_next_image(self):
+        # Get image from queue
         self.cur_tif = self.queue.pop()
-        self.orig_tif_filepath = self.cur_tif
-        self.generate_basename()
-        self.file_stem = os.path.basename(self.basename)
-
+        self.file_stem = os.path.basename(
+            self.cur_tif[0:self.cur_tif.rindex('.')]
+        )
         self.cur_jpg = os.path.normpath(
             os.path.dirname(self.cur_tif) + '/' +
             self.config.get('Locations', 'relative_location_jpg') +
             '.'.join((self.file_stem, 'jpg'))
         )
 
-        self.orig_jpg_filepath = self.cur_jpg
-        self.cur_typeless_path = os.path.normpath(os.path.dirname(self.cur_tif) + '/../')
+        # Determine where the file SHOULD live in the tree
+        self.tree_target_dir = os.path.normpath(
+            os.path.dirname(self.cur_tif) + '/../'
+        ).replace(
+            self.tree_base_path + '/', ''
+        )
 
-        new_tif_path = os.path.join(self.cur_typeless_path, os.path.basename(self.cur_tif))
-        os.symlink(self.cur_tif, new_tif_path)
-        self.cur_tif = new_tif_path
-
-        new_jpg_path = os.path.join(self.cur_typeless_path, os.path.basename(self.cur_jpg))
-        os.symlink(self.cur_jpg, new_jpg_path)
-        self.cur_jpg = new_jpg_path
-
-        self.generate_basename()
+        # Copy TIF to tmp directory, creating folders as we go.
+        self.init_tmp_path()
 
     def log_worker_stage(self, status_id):
-        cur_typeless_file = self.cur_typeless_path + '/' + self.file_stem + ".tif"
-        cur_typeless_relative = cur_typeless_file.replace(self.tree_base_path + '/', '')
+        cur_typeless_file = self.tree_target_dir + '/' + self.file_stem + ".tif"
         if status_id is 2:
-            self.db_cur.execute("UPDATE images SET status_id=" + str(status_id) + ", start_datestamp=NOW, latest_datestamp=NOW() WHERE filepath='" + cur_typeless_relative + "'")
+            self.db_cur.execute("UPDATE images SET status_id=" + str(status_id) + ", start_datestamp=NOW, latest_datestamp=NOW() WHERE filepath='" + cur_typeless_file + "'")
             self.db.commit()
         else:
-            self.db_cur.execute("UPDATE images SET status_id=" + str(status_id) + ", latest_datestamp=NOW() WHERE filepath='" + cur_typeless_relative + "'")
+            self.db_cur.execute("UPDATE images SET status_id=" + str(status_id) + ", latest_datestamp=NOW() WHERE filepath='" + cur_typeless_file + "'")
             self.db.commit()
         return True
 
@@ -279,3 +284,38 @@ class BNIEncodingWorker(threading.Thread):
             db=self.config.get('MySQL', 'mysql_db'),
             charset="utf8"
         )
+
+    def init_tmp_path(self):
+        self.tmp_file_dir = os.path.join(
+            self.tmp_root,
+            self.tree_target_dir
+        )
+        self.mkdir_p(self.tmp_file_dir)
+        self.tmp_tif = os.path.join(
+            self.tmp_root,
+            self.tree_target_dir,
+            self.file_stem,
+            'tif'
+        )
+        os.symlink(
+            self.cur_tif,
+            self.tmp_tif
+        )
+        self.tmp_jpg = os.path.join(
+            self.tmp_root,
+            self.tree_target_dir,
+            self.file_stem,
+            'jpg'
+        )
+        os.symlink(
+            self.cur_jpg,
+            self.tmp_jpg
+        )
+
+    def mkdir_p(self, path):
+        try:
+            os.makedirs(path)
+        except OSError as exc: # Python >2.5
+            if exc.errno == errno.EEXIST and os.path.isdir(path):
+                pass
+            else: raise
