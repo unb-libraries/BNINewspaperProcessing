@@ -17,6 +17,8 @@ class BNIEncodingWorker(threading.Thread):
         self.init_config(config)
         self.logger = None
         self.cur_tif = None
+        self.orig_tif_filepath = None
+        self.orig_jpg_filepath = None
         self.cur_jpg = None
         self.cur_typeless_path = None
         self.basename = None
@@ -43,6 +45,7 @@ class BNIEncodingWorker(threading.Thread):
                 self.logger.info('Worker %s set to work on %s.', self.worker_id, self.cur_tif)
                 self.process_file()
             except:
+                self.remove_tempfiles()
                 break
 
     def process_file(self):
@@ -55,7 +58,7 @@ class BNIEncodingWorker(threading.Thread):
             self.archive_files(self.lib_output_path, ['hocr', 'txt', 'jpg'])
         ):
             pass
-            # self.log_transaction()
+            self.remove_tempfiles()
             self.remove_originals()
             self.log_worker_stage(17)
 
@@ -222,6 +225,10 @@ class BNIEncodingWorker(threading.Thread):
         return False
 
     def remove_originals(self):
+        os.unlink(self.orig_tif_filepath)
+        return True
+
+    def remove_tempfiles(self):
         os.unlink(self.cur_jpg)
         os.unlink(self.cur_tif)
         os.unlink('.'.join((self.basename, 'hocr')))
@@ -230,6 +237,7 @@ class BNIEncodingWorker(threading.Thread):
 
     def setup_next_image(self):
         self.cur_tif = self.queue.pop()
+        self.orig_tif_filepath = self.cur_tif
         self.generate_basename()
         self.file_stem = os.path.basename(self.basename)
 
@@ -238,6 +246,8 @@ class BNIEncodingWorker(threading.Thread):
             self.config.get('Locations', 'relative_location_jpg') +
             '.'.join((self.file_stem, 'jpg'))
         )
+
+        self.orig_jpg_filepath = self.cur_jpg
         self.cur_typeless_path = os.path.normpath(os.path.dirname(self.cur_tif) + '/../')
 
         new_tif_path = os.path.join(self.cur_typeless_path, os.path.basename(self.cur_tif))
