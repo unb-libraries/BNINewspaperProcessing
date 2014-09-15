@@ -99,7 +99,7 @@ class BNIEncodingDaemon(Daemon):
         cur_typeless_relative = cur_typeless_file.replace(self.input_path + '/', '')
 
         self.db_cur.execute("INSERT IGNORE INTO images " +
-                        "(config_id, filepath, status_id, queue_datestamp, latest_datestamp)" +
+                        '(config_id, filepath, status_id, queue_datestamp, latest_datestamp)' +
                         " VALUES " +
                         "(" +
                         str(self.mysql_config_id) + "," +
