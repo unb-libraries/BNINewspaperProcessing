@@ -28,6 +28,7 @@ class BNIEncodingDaemon(Daemon):
         self.max_workers = self.config.getint('Threading', 'number_workers')
         self.sleep_time = self.config.getint('Threading', 'sleep_time')
         self.input_path = self.config.get('Locations', 'input_path')
+        self.log_daemon_config()
 
     def run(self):
         while True:
@@ -92,10 +93,9 @@ class BNIEncodingDaemon(Daemon):
         )
 
     def log_queue_insert(self, file_path, status_id=1):
-        file_basename = file_path[0:file_path.rindex('.')]
-        file_stem = os.path.basename(file_basename)
+        file_stem = os.path.basename(file_path)
         cur_typeless_path = os.path.normpath(os.path.dirname(file_path) + '/../')
-        cur_typeless_file = cur_typeless_path + '/' + file_stem + ".tif"
+        cur_typeless_file = cur_typeless_path + '/' + file_stem
         cur_typeless_relative = cur_typeless_file.replace(self.input_path + '/', '')
 
         self.db_cur.execute("INSERT IGNORE INTO images " +
@@ -108,7 +108,7 @@ class BNIEncodingDaemon(Daemon):
                         "NOW()," +
                         "NOW())"
         )
-        self.db.commit()
+        return self.db.commit()
 
     def log_daemon_config(self):
         os_lsb_data = platform.linux_distribution()
@@ -128,6 +128,7 @@ class BNIEncodingDaemon(Daemon):
         )
         self.db.commit()
         self.mysql_config_id = self.db_cur.lastrowid
+        return True
 
     def get_hostname(self):
         return socket.getfqdn()
