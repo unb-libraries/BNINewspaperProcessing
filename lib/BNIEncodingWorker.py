@@ -130,7 +130,7 @@ class BNIEncodingWorker(threading.Thread):
 
         rsyncCall.append(output_path + '/')
 
-        if subprocess.call(rsyncCall, cwd=self.tree_base_path) == 0:
+        if subprocess.call(rsyncCall, cwd=self.tmp_file_dir) == 0:
             return self.generate_sha1(
                 output_path + '/' + self.tree_target_dir,
                 '.'.join((self.file_stem, 'sha1')),
