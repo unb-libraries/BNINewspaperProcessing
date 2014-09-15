@@ -4,27 +4,23 @@ Core worker class for generating OCR for BNINewspaperMicroservices.
 """
 
 from bs4 import BeautifulSoup
-import MySQLdb
 import os
 import re
 import subprocess
 import threading
 
-import socket
-import platform
-
 
 class BNIEncodingWorker(threading.Thread):
     def __init__(self, worker_id, config, logger, queue, tree_base_path):
         threading.Thread.__init__(self)
-        self.cur_tif = ''
-        self.cur_jpg = ''
-        self.cur_typeless_path = ''
-        self.basename = ''
-        self.file_stem = ''
-        self.db = ''
-        self.db_cur = ''
-        self.mysql_config_id = '0'
+        self.logger = None
+        self.cur_tif = None
+        self.cur_jpg = None
+        self.cur_typeless_path = None
+        self.basename = None
+        self.file_stem = None
+        self.db = super(BNIEncodingWorker, self).init_mysql()
+        self.db_cur = self.db.cursor()
         self.tree_base_path = tree_base_path
         self.worker_id = worker_id
         self.init_config(config)
@@ -36,12 +32,7 @@ class BNIEncodingWorker(threading.Thread):
         self.queue = queue
 
     def run(self):
-
         self.logger.info('Worker %s Initializing MySQL Connection.', self.worker_id)
-        self.init_mysql()
-
-        self.log_worker_config()
-
         while True:
             self.logger.info('Worker %s does not have a task assigned. Looking for one.', self.worker_id)
             self.logger.info('Worker %s reports queue length is currently %s.', self.worker_id, len(self.queue))
@@ -52,16 +43,6 @@ class BNIEncodingWorker(threading.Thread):
                 self.process_file()
             except:
                 break
-
-    def init_mysql(self):
-        self.db = MySQLdb.connect(
-            host=self.config.get('MySQL', 'mysql_host'),
-            user=self.config.get('MySQL', 'mysql_user'),
-            passwd=self.config.get('MySQL', 'mysql_pw'),
-            db=self.config.get('MySQL', 'mysql_db'),
-            charset="utf8"
-        )
-        self.db_cur = self.db.cursor()
 
     def process_file(self):
         if (self.check_tif_size() and
@@ -268,55 +249,12 @@ class BNIEncodingWorker(threading.Thread):
 
         self.generate_basename()
 
-
-    def log_worker_config(self):
-        os_lsb_data = platform.linux_distribution()
-        self.db_cur.execute("INSERT IGNORE INTO configuration " +
-                        "(hostname, os_id, os_release, num_workers, sleep_time, gm_version, tesseract_version, tesseract_language, gm_surrogate_convert_options)" +
-                        " VALUES " +
-                        "(" +
-                        "'" + self.get_hostname() + "'," +
-                        "'" + os_lsb_data[0] + "'," +
-                        "'" + os_lsb_data[1] + "'," +
-                        self.config.get('Threading', 'number_workers') + "," +
-                        self.config.get('Threading', 'sleep_time') + "," +
-                        "'" + self.get_gm_version() + "'," +
-                        "'" + self.get_tesseract_version() + "'," +
-                        "'" + self.config.get('Tesseract', 'tesseract_language') + "'," +
-                        "'" + self.config.get('HOCR', 'gm_surrogate_convert_options') + "')"
-        )
-        self.db.commit()
-        self.mysql_config_id = self.db_cur.lastrowid
-
-    def get_hostname(self):
-        return socket.getfqdn()
-
-    def get_gm_version(self):
-        return os.popen('GraphicsMagick-config --version').read().strip()
-
-    def get_tesseract_version(self):
-        sub_p = subprocess.Popen([self.config.get('Tesseract', 'tesseract_bin_path'),'--version'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        (tesseract_stdout, tesseract_stderr) = sub_p.communicate()
-        return tesseract_stderr.strip().replace("\n", ' ')
-
     def log_worker_stage(self, status_id):
         cur_typeless_file = self.cur_typeless_path + '/' + self.file_stem + ".tif"
         cur_typeless_relative = cur_typeless_file.replace(self.tree_base_path + '/', '')
-
-        if (status_id == 1):
-            self.db_cur.execute("INSERT IGNORE INTO images " +
-                            "(config_id, filepath, status_id, queue_datestamp, start_datestamp, latest_datestamp)" +
-                            " VALUES " +
-                            "(" +
-                            str(self.mysql_config_id) + "," +
-                            "'" + cur_typeless_relative + "'," +
-                            str(status_id) + "," +
-                            "NOW()," +
-                            "NOW()," +
-                            "NOW())"
-            )
+        if status_id is 2:
+            self.db_cur.execute("UPDATE images SET status_id=" + str(status_id) + ", start_datestamp=NOW, latest_datestamp=NOW() WHERE filepath='" + cur_typeless_relative + "'")
             self.db.commit()
-            self.mysql_config_id = self.db_cur.lastrowid
         else:
             self.db_cur.execute("UPDATE images SET status_id=" + str(status_id) + ", latest_datestamp=NOW() WHERE filepath='" + cur_typeless_relative + "'")
             self.db.commit()
