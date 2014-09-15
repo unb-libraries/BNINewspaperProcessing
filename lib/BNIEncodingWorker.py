@@ -14,6 +14,7 @@ import threading
 class BNIEncodingWorker(threading.Thread):
     def __init__(self, worker_id, config, logger, queue, tree_base_path):
         threading.Thread.__init__(self)
+        self.init_config(config)
         self.logger = None
         self.cur_tif = None
         self.cur_jpg = None
@@ -24,7 +25,6 @@ class BNIEncodingWorker(threading.Thread):
         self.db_cur = self.db.cursor()
         self.tree_base_path = tree_base_path
         self.worker_id = worker_id
-        self.init_config(config)
         self.init_logger(logger)
         self.tmp_path = self.config.get('Locations', 'tmp_path')
         self.bni_output_path = self.config.get('Locations', 'bni_output_path')
