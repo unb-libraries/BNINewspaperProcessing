@@ -91,7 +91,8 @@ class BNIEncodingDaemon(Daemon):
         self.db_cur.close()
         self.db.close()
 
-        self.log_queue_insert(self.queue)
+        if len(files) > 0:
+            self.log_queue_insert(self.queue)
 
     def init_mysql(self):
         return MySQLdb.connect(
