@@ -100,7 +100,7 @@ class BNIEncodingDaemon(Daemon):
             cur_typeless_path = os.path.normpath(os.path.dirname(cur_file) + '/../')
             cur_typeless_file = cur_typeless_path + '/' + file_stem
             cur_typeless_relative = cur_typeless_file.replace(self.input_path + '/', '')
-            insert_queue_string += "(" + str(self.mysql_config_id) + "," + "'" + cur_typeless_relative + "'," + str(status_id) + "," + "NOW()," + "NOW()),"
+            insert_queue_string += " (" + str(self.mysql_config_id) + "," + "'" + cur_typeless_relative + "'," + str(status_id) + "," + "NOW()," + "NOW()),"
 
         self.db_cur.execute(insert_queue_string.rstrip(","))
         return self.db.commit()
