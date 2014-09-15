@@ -28,7 +28,6 @@ class BNIEncodingDaemon(Daemon):
         self.max_workers = self.config.getint('Threading', 'number_workers')
         self.sleep_time = self.config.getint('Threading', 'sleep_time')
         self.input_path = self.config.get('Locations', 'input_path')
-        self.init_mysql()
 
     def run(self):
         while True:
