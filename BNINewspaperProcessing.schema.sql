@@ -22,6 +22,10 @@ CREATE TABLE images (
   UNIQUE (filepath)
 );
 
+ALTER TABLE images ADD INDEX (filepath);
+ALTER TABLE images ADD INDEX (status_id);
+ALTER TABLE images ADD INDEX (id,status_id);
+
 CREATE TABLE status (
   status_id TINYINT UNSIGNED NOT NULL PRIMARY KEY,
   status_string VARCHAR(16)
