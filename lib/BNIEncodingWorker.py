@@ -62,10 +62,10 @@ class BNIEncodingWorker(threading.Thread):
             pass
             self.remove_tempfiles()
             self.remove_originals()
-            self.log_worker_stage(17)
+            self.log_worker_stage(18)
 
     def generate_hocr(self):
-        self.log_worker_stage(8)
+        self.log_worker_stage(9)
         self.logger.info('Worker %s generating OCR for %s.', self.worker_id, self.cur_tif)
         self.hocr_surrogate_filepath = os.path.join(
             self.tmp_root,
@@ -101,10 +101,10 @@ class BNIEncodingWorker(threading.Thread):
 
         self.log_encode_begin()
         if subprocess.call(tesseract_call) == 0:
-            self.log_worker_stage(10)
+            self.log_worker_stage(11)
             return True
         self.log_encode_fail()
-        self.log_worker_stage(9)
+        self.log_worker_stage(10)
         return False
 
     def init_config(self, config):
@@ -151,14 +151,14 @@ class BNIEncodingWorker(threading.Thread):
         return False
 
     def generate_ocr(self):
-        self.log_worker_stage(11)
+        self.log_worker_stage(12)
         with open('.'.join((self.tmp_filepath_stem, 'hocr')), "r") as hocr_file_p:
             hocr_file_string=hocr_file_p.read().replace('\n', '')
 
         ocr_file_p = open('.'.join((self.tmp_filepath_stem, 'txt')), "w")
         ocr_file_p.write(self.distill_hocr_to_ocr(hocr_file_string))
         ocr_file_p.close()
-        self.log_worker_stage(13)
+        self.log_worker_stage(14)
         return True
 
 
@@ -196,18 +196,18 @@ class BNIEncodingWorker(threading.Thread):
         cur_tif_size = os.path.getsize(self.cur_tif)
         self.logger.info('Worker %s checking TIF Size %s vs %s.', self.worker_id, cur_min_size, cur_tif_size)
         if self.check_file_size(self.cur_tif, cur_min_size):
-            self.log_worker_stage(3)
+            self.log_worker_stage(4)
             return True
-        self.log_worker_stage(2)
+        self.log_worker_stage(3)
         return False
 
 
     def check_jpg_exits(self):
         self.logger.info('Worker %s checking If JPG exists %s.', self.worker_id, self.cur_jpg)
         if os.path.isfile(self.cur_jpg):
-            self.log_worker_stage(5)
+            self.log_worker_stage(6)
             return True
-        self.log_worker_stage(4)
+        self.log_worker_stage(5)
         return False
 
     def check_jpg_size(self):
@@ -215,9 +215,9 @@ class BNIEncodingWorker(threading.Thread):
         cur_jpg_size = os.path.getsize(self.cur_jpg)
         self.logger.info('Worker %s checking JPG Size %s vs %s.', self.worker_id, cur_min_size, cur_jpg_size)
         if self.check_file_size(self.cur_jpg, cur_min_size):
-            self.log_worker_stage(7)
+            self.log_worker_stage(8)
             return True
-        self.log_worker_stage(6)
+        self.log_worker_stage(7)
         return False
 
     def check_file_size(self, file_path, minimum_size):
@@ -337,5 +337,5 @@ class BNIEncodingWorker(threading.Thread):
         row = self.db_cur.fetchone()
         if row is None:
             return False
-        self.log_worker_stage(self, 2, row[0])
+        self.log_worker_stage(2, row[0])
         return row[0]
