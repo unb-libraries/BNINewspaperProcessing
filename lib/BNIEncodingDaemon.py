@@ -88,6 +88,7 @@ class BNIEncodingDaemon(Daemon):
         self.db.close()
 
         if len(self.queue) > 0:
+            self.logger.info('Some new images found, bulk loading queue with all new images.', self.sleep_time)
             self.log_queue_insert(self.queue)
 
     def init_mysql(self):
