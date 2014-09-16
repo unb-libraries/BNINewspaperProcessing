@@ -251,7 +251,7 @@ class BNIEncodingWorker(threading.Thread):
 
         self.cur_tif = os.path.join(
             self.tree_base_path,
-            self.cur_tif
+            self.cur_tif.replace(os.path.basename(self.cur_tif), 'Tiffs/' + os.path.basename(self.cur_tif))
         )
         self.file_stem = os.path.basename(
             self.cur_tif[0:self.cur_tif.rindex('.')]
