@@ -56,7 +56,7 @@ class BNIEncodingWorker(threading.Thread):
             self.check_jpg_size() and
             self.generate_hocr() and
             self.generate_ocr() and
-            self.archive_files(self.bni_output_path, ['hocr', 'txt', 'tif']) and
+            self.archive_files(self.bni_output_path, ['txt', 'tif']) and
             self.archive_files(self.lib_output_path, ['hocr', 'txt', 'jpg'])
         ):
             pass
