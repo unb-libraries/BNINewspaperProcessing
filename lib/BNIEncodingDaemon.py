@@ -36,22 +36,19 @@ class BNIEncodingDaemon(Daemon):
             self.update_queue()
             self.logger.info('Daemon looking for jobs for workers.')
             for worker_id in range(self.max_workers):
-                queue_length = len(self.queue)
-                self.logger.info('Daemon reports queue length is currently %s.', queue_length)
-                if not queue_length is 0:
-                    self.logger.info('Daemon found job(s) - deploying to worker %s.', worker_id)
-                    worker = BNIEncodingWorker(
-                        worker_id,
-                        self.config,
-                        self.logger,
-                        self.queue,
-                        self.input_path,
-                    )
-                    worker.start()
-                    # Sleep on initial worker spin-up to let previous worker get job from queue and stagger queue
-                    # grabs. It currently is 'safe' but throw exceptions if two workers try to grab at the same time.
-                    # Making it 100% thread safe with blocking is a whole thing, so we do this.
-                    time.sleep(3)
+                self.logger.info('Daemon found job(s) - deploying to worker %s.', worker_id)
+                worker = BNIEncodingWorker(
+                    worker_id,
+                    self.config,
+                    self.logger,
+                    self.queue,
+                    self.input_path,
+                )
+                worker.start()
+                # Sleep on initial worker spin-up to let previous worker get job from queue and stagger queue
+                # grabs. It currently is 'safe' but throw exceptions if two workers try to grab at the same time.
+                # Making it 100% thread safe with blocking is a whole thing, so we do this.
+                time.sleep(3)
             for thread in threading.enumerate():
                 if thread is not threading.currentThread():
                     thread.join()
