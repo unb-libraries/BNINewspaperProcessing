@@ -247,6 +247,7 @@ class BNIEncodingWorker(threading.Thread):
         # Get image from queue
         self.cur_tif = self.get_next_queue_item()
         if not self.cur_tif:
+            self.logger.info('Worker %s could not find any more queue items, retiring.', self.worker_id)
             raise Exception("No queue items left!")
 
         self.cur_tif = os.path.join(
