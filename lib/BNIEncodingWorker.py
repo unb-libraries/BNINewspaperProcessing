@@ -331,7 +331,8 @@ class BNIEncodingWorker(threading.Thread):
         except OSError as exc: # Python >2.5
             if exc.errno == errno.EEXIST and os.path.isdir(path):
                 pass
-            else: raise
+            else:
+                raise
 
     def get_next_queue_item(self):
         self.db_cur.execute("SELECT filepath FROM images where status_id=1 ORDER BY id ASC LIMIT 1")
