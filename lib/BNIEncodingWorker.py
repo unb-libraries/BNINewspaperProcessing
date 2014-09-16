@@ -13,7 +13,7 @@ import threading
 
 
 class BNIEncodingWorker(threading.Thread):
-    def __init__(self, worker_id, config, logger, queue, tree_base_path):
+    def __init__(self, worker_id, config, logger, tree_base_path):
         threading.Thread.__init__(self)
         self.init_config(config)
         self.logger = None
@@ -37,13 +37,11 @@ class BNIEncodingWorker(threading.Thread):
         self.lib_output_path = self.config.get('Locations', 'lib_output_path')
         self.language = self.config.get('Tesseract', 'tesseract_language')
         self.tmp_root = self.config.get('Locations', 'tmp_path')
-        self.queue = queue
 
     def run(self):
         self.logger.info('Worker %s Initializing MySQL Connection.', self.worker_id)
         while True:
             self.logger.info('Worker %s does not have a task assigned. Looking for one.', self.worker_id)
-            self.logger.info('Worker %s reports queue length is currently %s.', self.worker_id, len(self.queue))
             try:
                 self.setup_next_image()
                 self.logger.info('Worker %s set to work on %s.', self.worker_id, self.cur_tif)

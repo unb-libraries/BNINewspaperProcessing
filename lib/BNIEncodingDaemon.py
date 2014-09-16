@@ -41,7 +41,6 @@ class BNIEncodingDaemon(Daemon):
                     worker_id,
                     self.config,
                     self.logger,
-                    self.queue,
                     self.input_path,
                 )
                 worker.start()
