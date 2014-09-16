@@ -21,8 +21,8 @@ mysql_user=
 mysql_pw=
 
 [MinimumSizes]
-min_size_jpg=2000000
-min_size_tif=16000000
+min_size_jpg=400000
+min_size_tif=9000000
 
 [GraphicsMagick]
 gm_bin_path=/usr/bin/gm
