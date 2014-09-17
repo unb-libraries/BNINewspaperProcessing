@@ -46,7 +46,7 @@ INSERT INTO status (status_id,status_string) VALUES
 (14,'FAILHOCR'),
 (15,'PASSHOCR'),
 (16,'GENERATEOCR'),
-(17,'FAILOCR'),
+(17,'WRITEOCR'),
 (18,'PASSOCR'),
 (19,'ARCHIVEFILES'),
 (20,'ARCHIVEOK'),

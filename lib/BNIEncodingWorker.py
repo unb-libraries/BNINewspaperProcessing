@@ -167,15 +167,16 @@ class BNIEncodingWorker(threading.Thread):
 
     def generate_ocr(self):
         self.log_worker_stage(16)
+
         with open('.'.join((self.tmp_filepath_stem, 'hocr')), "r") as hocr_file_p:
-            hocr_file_string=hocr_file_p.read().replace('\n', '')
+            hocr_file_string = hocr_file_p.read().replace('\n', '')
+        self.log_worker_stage(17)
 
-        ocr_file_p = open('.'.join((self.tmp_filepath_stem, 'txt')), "w")
-        ocr_file_p.write(self.distill_hocr_to_ocr(hocr_file_string))
-        ocr_file_p.close()
+        with open('.'.join((self.tmp_filepath_stem, 'txt')), 'w') as ocr_file_p:
+            ocr_file_p.write(self.distill_hocr_to_ocr(hocr_file_string))
         self.log_worker_stage(18)
-        return True
 
+        return True
 
     def append_additional_encode_options(self, call_list, extra_options_variable, encoder_name):
         extra_options = self.config.get('HOCR', extra_options_variable)
