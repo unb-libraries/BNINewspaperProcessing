@@ -62,7 +62,7 @@ class BNIEncodingWorker(threading.Thread):
             pass
             self.remove_tempfiles()
             self.remove_originals()
-            self.log_worker_stage(18)
+            self.log_worker_stage(19)
 
     def generate_hocr(self):
         self.log_worker_stage(9)
@@ -92,6 +92,8 @@ class BNIEncodingWorker(threading.Thread):
             return False
 
         tesseract_call = [
+            'timeout',
+            '5m',
             self.config.get('Tesseract', 'tesseract_bin_path'),
             self.hocr_surrogate_filepath,
             self.tmp_filepath_stem,
@@ -100,11 +102,16 @@ class BNIEncodingWorker(threading.Thread):
         ]
 
         self.log_encode_begin()
-        if subprocess.call(tesseract_call) == 0:
-            self.log_worker_stage(11)
+        tesseract_return = subprocess.call(tesseract_call)
+        if tesseract_return is 0:
+            self.log_worker_stage(12)
             return True
+        elif tesseract_return is 124: # Timeout terminates with status 124
+            self.log_encode_fail()
+            self.log_worker_stage(10)
+            return False
         self.log_encode_fail()
-        self.log_worker_stage(10)
+        self.log_worker_stage(11)
         return False
 
     def init_config(self, config):
@@ -151,14 +158,14 @@ class BNIEncodingWorker(threading.Thread):
         return False
 
     def generate_ocr(self):
-        self.log_worker_stage(12)
+        self.log_worker_stage(13)
         with open('.'.join((self.tmp_filepath_stem, 'hocr')), "r") as hocr_file_p:
             hocr_file_string=hocr_file_p.read().replace('\n', '')
 
         ocr_file_p = open('.'.join((self.tmp_filepath_stem, 'txt')), "w")
         ocr_file_p.write(self.distill_hocr_to_ocr(hocr_file_string))
         ocr_file_p.close()
-        self.log_worker_stage(14)
+        self.log_worker_stage(15)
         return True
 
 
@@ -228,6 +235,7 @@ class BNIEncodingWorker(threading.Thread):
     def remove_originals(self):
         # os.unlink(self.cur_tif)
         # os.unlink(self.cur_jpg)
+        self.log_worker_stage(18)
         return True
 
     def remove_tempfiles(self):
