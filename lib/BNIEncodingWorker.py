@@ -281,11 +281,11 @@ class BNIEncodingWorker(threading.Thread):
 
     def log_worker_stage(self, status_id, file_path=''):
         if status_id is 2:
-            self.db_cur.execute("UPDATE DELAYED images SET status_id=" + str(status_id) + ", start_datestamp=NOW(), latest_datestamp=NOW() WHERE filepath='" + file_path + "'")
+            self.db_cur.execute("UPDATE images SET status_id=" + str(status_id) + ", start_datestamp=NOW(), latest_datestamp=NOW() WHERE filepath='" + file_path + "'")
             self.db.commit()
         else:
             tree_filepath = self.tree_target_dir + '/' + self.file_stem + ".tif"
-            self.db_cur.execute("UPDATE DELAYED images SET status_id=" + str(status_id) + ", latest_datestamp=NOW() WHERE filepath='" + tree_filepath + "'")
+            self.db_cur.execute("UPDATE images SET status_id=" + str(status_id) + ", latest_datestamp=NOW() WHERE filepath='" + tree_filepath + "'")
             self.db.commit()
         return True
 
