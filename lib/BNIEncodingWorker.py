@@ -62,7 +62,7 @@ class BNIEncodingWorker(threading.Thread):
             pass
             self.remove_tempfiles()
             self.remove_originals()
-            self.log_worker_stage(19)
+            self.log_worker_stage(23)
 
     def generate_hocr(self):
         self.log_worker_stage(9)
@@ -134,13 +134,15 @@ class BNIEncodingWorker(threading.Thread):
             sha1_files_to_check.append('.'.join((self.file_stem, cur_extension)))
 
         rsyncCall.append(output_path + '/')
-
+        self.log_worker_stage(16)
         if subprocess.call(rsyncCall, cwd=self.tmp_path) == 0:
+            self.log_worker_stage(17)
             return self.generate_sha1(
                 output_path + '/' + self.tree_target_dir,
                 '.'.join((self.file_stem, 'sha1')),
                 sha1_files_to_check
             )
+        self.log_worker_stage(18)
         return False
 
     def generate_sha1(self, path, output_file, filenames):
@@ -150,10 +152,13 @@ class BNIEncodingWorker(threading.Thread):
             '/usr/bin/sha1sum',
         ]
 
+        self.log_worker_stage(19)
         sha1sum_call.extend(filenames)
         if subprocess.call(sha1sum_call, stdout=sha1sum_filep, cwd=path) == 0:
+            self.log_worker_stage(20)
             self.logger.info('Worker %s succeded in calculating SHA1sum of files for %s.', self.worker_id, path)
             return True
+        self.log_worker_stage(21)
         self.logger.info('Worker %s failed in calculating SHA1sum of files for %s.', self.worker_id, path)
         return False
 
@@ -235,7 +240,7 @@ class BNIEncodingWorker(threading.Thread):
     def remove_originals(self):
         # os.unlink(self.cur_tif)
         # os.unlink(self.cur_jpg)
-        self.log_worker_stage(18)
+        self.log_worker_stage(22)
         return True
 
     def remove_tempfiles(self):
