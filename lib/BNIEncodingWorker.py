@@ -93,7 +93,7 @@ class BNIEncodingWorker(threading.Thread):
 
         tesseract_call = [
             'timeout',
-            '5m',
+            self.config.get('Tesseract', 'tesseract_timeout'),
             self.config.get('Tesseract', 'tesseract_bin_path'),
             self.hocr_surrogate_filepath,
             self.tmp_filepath_stem,
