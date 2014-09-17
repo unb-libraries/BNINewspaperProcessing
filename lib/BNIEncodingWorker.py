@@ -62,11 +62,10 @@ class BNIEncodingWorker(threading.Thread):
             pass
             self.remove_tempfiles()
             self.remove_originals()
-            self.log_worker_stage(23)
+            self.log_worker_stage(26)
 
     def generate_hocr(self):
-        self.log_worker_stage(9)
-        self.logger.info('Worker %s generating OCR for %s.', self.worker_id, self.cur_tif)
+        self.logger.info('Worker %s generating HOCR for %s.', self.worker_id, self.cur_tif)
         self.hocr_surrogate_filepath = os.path.join(
             self.tmp_root,
             self.tree_target_dir,
@@ -77,6 +76,7 @@ class BNIEncodingWorker(threading.Thread):
             "convert",
             self.tmp_tif
         ]
+        self.log_worker_stage(9)
         self.append_additional_encode_options(gm_call, 'gm_surrogate_convert_options', 'GraphicsMagick')
         gm_call.append(self.hocr_surrogate_filepath)
 
@@ -85,12 +85,15 @@ class BNIEncodingWorker(threading.Thread):
             self.logger.info('Worker %s succeeded in encoding HOCR surrogate to tesseract input file %s.',
                              self.worker_id,
                              self.hocr_surrogate_filepath)
+            self.log_worker_stage(10)
         else:
             self.logger.info('Worker %s failed encoding HOCR surrogate to tesseract input file %s.',
                              self.worker_id,
                              self.hocr_surrogate_filepath)
+            self.log_worker_stage(11)
             return False
 
+        self.log_worker_stage(12)
         tesseract_call = [
             'timeout',
             self.config.get('Tesseract', 'tesseract_timeout'),
@@ -104,14 +107,14 @@ class BNIEncodingWorker(threading.Thread):
         self.log_encode_begin()
         tesseract_return = subprocess.call(tesseract_call)
         if tesseract_return is 0:
-            self.log_worker_stage(12)
+            self.log_worker_stage(15)
             return True
         elif tesseract_return is 124: # Timeout terminates with status 124
             self.log_encode_fail()
-            self.log_worker_stage(10)
+            self.log_worker_stage(13)
             return False
         self.log_encode_fail()
-        self.log_worker_stage(11)
+        self.log_worker_stage(14)
         return False
 
     def init_config(self, config):
@@ -134,15 +137,15 @@ class BNIEncodingWorker(threading.Thread):
             sha1_files_to_check.append('.'.join((self.file_stem, cur_extension)))
 
         rsyncCall.append(output_path + '/')
-        self.log_worker_stage(16)
+        self.log_worker_stage(19)
         if subprocess.call(rsyncCall, cwd=self.tmp_path) == 0:
-            self.log_worker_stage(17)
+            self.log_worker_stage(20)
             return self.generate_sha1(
                 output_path + '/' + self.tree_target_dir,
                 '.'.join((self.file_stem, 'sha1')),
                 sha1_files_to_check
             )
-        self.log_worker_stage(18)
+        self.log_worker_stage(21)
         return False
 
     def generate_sha1(self, path, output_file, filenames):
@@ -152,25 +155,25 @@ class BNIEncodingWorker(threading.Thread):
             '/usr/bin/sha1sum',
         ]
 
-        self.log_worker_stage(19)
+        self.log_worker_stage(22)
         sha1sum_call.extend(filenames)
         if subprocess.call(sha1sum_call, stdout=sha1sum_filep, cwd=path) == 0:
-            self.log_worker_stage(20)
+            self.log_worker_stage(23)
             self.logger.info('Worker %s succeded in calculating SHA1sum of files for %s.', self.worker_id, path)
             return True
-        self.log_worker_stage(21)
+        self.log_worker_stage(24)
         self.logger.info('Worker %s failed in calculating SHA1sum of files for %s.', self.worker_id, path)
         return False
 
     def generate_ocr(self):
-        self.log_worker_stage(13)
+        self.log_worker_stage(16)
         with open('.'.join((self.tmp_filepath_stem, 'hocr')), "r") as hocr_file_p:
             hocr_file_string=hocr_file_p.read().replace('\n', '')
 
         ocr_file_p = open('.'.join((self.tmp_filepath_stem, 'txt')), "w")
         ocr_file_p.write(self.distill_hocr_to_ocr(hocr_file_string))
         ocr_file_p.close()
-        self.log_worker_stage(15)
+        self.log_worker_stage(18)
         return True
 
 
@@ -240,7 +243,7 @@ class BNIEncodingWorker(threading.Thread):
     def remove_originals(self):
         # os.unlink(self.cur_tif)
         # os.unlink(self.cur_jpg)
-        self.log_worker_stage(22)
+        self.log_worker_stage(25)
         return True
 
     def remove_tempfiles(self):
