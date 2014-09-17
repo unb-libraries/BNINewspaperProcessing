@@ -18,10 +18,8 @@ CREATE TABLE images (
   status_id TINYINT UNSIGNED,
   queue_datestamp DATETIME,
   start_datestamp DATETIME,
-  latest_datestamp DATETIME,
-  UNIQUE (filepath)
-);
-
+  latest_datestamp DATETIME
+) ENGINE = MYISAM;
 ALTER TABLE images ADD INDEX (filepath);
 ALTER TABLE images ADD INDEX (status_id);
 ALTER TABLE images ADD INDEX (id,status_id);
