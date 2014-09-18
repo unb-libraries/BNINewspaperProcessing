@@ -76,13 +76,16 @@ class BNIEncodingDaemon(Daemon):
 
         self.db = self.init_mysql()
         self.db_cur = self.db.cursor()
+        batch_image_counter = 0
 
         for root, subFolders, files in os.walk(self.input_path):
             files = [fi for fi in files if fi.endswith(".tif")]
             if len(files) > 0:
                 for cur_file in files:
-                    if not self.file_already_queued(os.path.join(root, cur_file)):
-                        self.queue.update([os.path.join(root, cur_file)])
+                    if batch_image_counter < self.config.getint('Threading', 'images_per_batch'):
+                        if not self.file_already_queued(os.path.join(root, cur_file)):
+                            self.queue.update([os.path.join(root, cur_file)])
+                            batch_image_counter += 1
 
         self.db_cur.close()
         self.db.close()

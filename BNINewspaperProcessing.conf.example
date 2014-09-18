@@ -8,6 +8,7 @@ relative_location_jpg=../Jpgs/
 [Threading]
 number_workers=2
 sleep_time=60
+images_per_batch=1000
 
 [Logging]
 log_file=/tmp/newspaperEncoding.log
