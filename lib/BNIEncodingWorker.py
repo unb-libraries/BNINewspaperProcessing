@@ -59,7 +59,6 @@ class BNIEncodingWorker(threading.Thread):
             self.archive_files(self.bni_output_path, ['txt', 'tif']) and
             self.archive_files(self.lib_output_path, ['hocr', 'txt', 'jpg'])
         ):
-            pass
             self.remove_tempfiles()
             self.remove_originals()
             self.log_worker_stage(26)
@@ -242,8 +241,8 @@ class BNIEncodingWorker(threading.Thread):
         return False
 
     def remove_originals(self):
-        # os.unlink(self.cur_tif)
-        # os.unlink(self.cur_jpg)
+        os.unlink(self.cur_tif)
+        os.unlink(self.cur_jpg)
         self.log_worker_stage(25)
         return True
 
