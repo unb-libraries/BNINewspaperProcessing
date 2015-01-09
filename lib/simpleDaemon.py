@@ -4,8 +4,12 @@ This serves as the daemon class for the encoding suite.
 
 Based off the 'simple unix/linux daemon in Python' by by Sander Marechal.
 """
-
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
+from __future__ import unicode_literals
 import sys, os, time, atexit
+import io
 from signal import SIGTERM
 
 class Daemon(object):
@@ -48,9 +52,9 @@ class Daemon(object):
         # redirect standard file descriptors
         sys.stdout.flush()
         sys.stderr.flush()
-        si = file(self.stdin, 'r')
-        so = file(self.stdout, 'a+')
-        se = file(self.stderr, 'a+', 0)
+        si = io.open(self.stdin, 'r')
+        so = io.open(self.stdout, 'a+')
+        se = io.open(self.stderr, 'a+', 0)
         os.dup2(si.fileno(), sys.stdin.fileno())
         os.dup2(so.fileno(), sys.stdout.fileno())
         os.dup2(se.fileno(), sys.stderr.fileno())
@@ -58,7 +62,7 @@ class Daemon(object):
         # write pidfile
         atexit.register(self.delpid)
         pid = str(os.getpid())
-        file(self.pidfile, 'w+').write("%s\n" % pid)
+        io.open(self.pidfile, 'w+').write("%s\n" % pid)
 
     def delpid(self):
         os.remove(self.pidfile)
@@ -76,7 +80,7 @@ class Daemon(object):
     def start(self):
         # Check for a pidfile to see if the daemon already runs
         try:
-            pf = file(self.pidfile, 'r')
+            pf = io.open(self.pidfile, 'r')
             pid = int(pf.read().strip())
             pf.close()
         except IOError:
@@ -94,7 +98,7 @@ class Daemon(object):
     def stop(self):
         # Get the pid from the pidfile
         try:
-            pf = file(self.pidfile, 'r')
+            pf = io.open(self.pidfile, 'r')
             pid = int(pf.read().strip())
             pf.close()
         except IOError:
@@ -116,5 +120,5 @@ class Daemon(object):
                 if os.path.exists(self.pidfile):
                     os.remove(self.pidfile)
             else:
-                print str(err)
+                print(str(err))
                 sys.exit(1)

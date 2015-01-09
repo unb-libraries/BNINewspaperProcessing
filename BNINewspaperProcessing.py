@@ -10,7 +10,10 @@ New surrogate generation definition can be by creating a new '<ID>Surrogate'
 module and saving it within the lib directory. The worker will automatically
 import it if the surrogate type ID is requested in the SQS message.
 """
-
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
+from __future__ import unicode_literals
 from lib.BNIEncodingDaemon import BNIEncodingDaemon
 from lib.simpleDaemon import Daemon
 from optparse import OptionParser
@@ -22,7 +25,7 @@ def check_options(options, parser):
     if options.action_start:
         if options.config_file is None or not path.exists(options.config_file):
             parser.print_help()
-            print "\nERROR: Cannot read configuration file! (--config)"
+            print("\nERROR: Cannot read configuration file! (--config)")
             sys.exit(2)
     if not one_is_true(
             (
@@ -31,7 +34,7 @@ def check_options(options, parser):
             )
     ):
         parser.print_help()
-        print "\nERROR: Please specify ONE of [--start, --stop]"
+        print("\nERROR: Please specify ONE of [--start, --stop]")
         sys.exit(2)
 
 
@@ -89,13 +92,13 @@ if __name__ == "__main__":
     options = init_options()
 
     if options.action_stop:
-        print "Stopping " + sys.argv[0]
+        print("Stopping " + sys.argv[0])
         daemon = Daemon(
             options.pid_filepath,
         )
         daemon.stop()
     elif options.action_start:
-        print "Starting " + sys.argv[0]
+        print("Starting " + sys.argv[0])
         daemon = BNIEncodingDaemon(
             options.pid_filepath,
             '/dev/null',
