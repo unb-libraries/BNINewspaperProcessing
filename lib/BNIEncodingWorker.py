@@ -9,7 +9,7 @@ from __future__ import unicode_literals
 from bs4 import BeautifulSoup
 import errno
 import pymysql
-
+import io
 import os
 import re
 import subprocess
@@ -152,7 +152,7 @@ class BNIEncodingWorker(threading.Thread):
         return False
 
     def generate_sha1(self, path, output_file, filenames):
-        sha1sum_filep = open(os.path.join(path,output_file), "w")
+        sha1sum_filep = io.open(os.path.join(path,output_file), "w")
 
         sha1sum_call = [
             '/usr/bin/sha1sum',
@@ -171,11 +171,11 @@ class BNIEncodingWorker(threading.Thread):
     def generate_ocr(self):
         self.log_worker_stage(16)
 
-        with open('.'.join((self.tmp_filepath_stem, 'hocr')), "r") as hocr_file_p:
+        with io.open('.'.join((self.tmp_filepath_stem, 'hocr')), "r") as hocr_file_p:
             hocr_file_string = hocr_file_p.read().replace('\n', '')
         self.log_worker_stage(17)
 
-        with open('.'.join((self.tmp_filepath_stem, 'txt')), 'w') as ocr_file_p:
+        with io.open('.'.join((self.tmp_filepath_stem, 'txt')), 'w') as ocr_file_p:
             ocr_file_p.write(self.distill_hocr_to_ocr(hocr_file_string))
         self.log_worker_stage(18)
 
