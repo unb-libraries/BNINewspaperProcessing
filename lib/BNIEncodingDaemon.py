@@ -153,7 +153,7 @@ class BNIEncodingDaemon(Daemon):
         check_queued_query = "SELECT COUNT(1) FROM images WHERE filepath = '" + cur_typeless_relative + "'"
 
         self.db_cur.execute(check_queued_query)
-        if self.db_cur.fetchone()[0]:
+        if self.db_cur.fetchone()[0] > 0:
             return True
         return False
 
