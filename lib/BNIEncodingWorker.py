@@ -98,8 +98,6 @@ class BNIEncodingWorker(threading.Thread):
 
         self.log_worker_stage(12)
         tesseract_call = [
-            'timeout',
-            self.config.get('Tesseract', 'tesseract_timeout'),
             self.config.get('Tesseract', 'tesseract_bin_path'),
             self.hocr_surrogate_filepath,
             self.tmp_filepath_stem,
@@ -108,14 +106,17 @@ class BNIEncodingWorker(threading.Thread):
         ]
 
         self.log_encode_begin()
-        tesseract_return = subprocess.call(tesseract_call)
+
+        try:
+            tesseract_return = subprocess.call(tesseract_call, timeout=float(self.config.get('Tesseract', 'tesseract_timeout')))
+        except subprocess.TimeoutExpired:
+            self.log_tesseract_fail()
+            self.log_worker_stage(13)
+            return False
+
         if tesseract_return is 0:
             self.log_worker_stage(15)
             return True
-        elif tesseract_return is 124: # Timeout terminates with status 124
-            self.log_encode_fail()
-            self.log_worker_stage(13)
-            return False
         self.log_encode_fail()
         self.log_worker_stage(14)
         return False
@@ -195,6 +196,9 @@ class BNIEncodingWorker(threading.Thread):
 
     def log_encode_fail(self):
         self.logger.error('Worker %s encoding surrogate of %s has failed.', self.worker_id, self.cur_tif)
+
+    def log_tesseract_fail(self):
+        self.logger.error('Worker %s tesseract job of %s has failed.', self.worker_id, self.cur_tif)
 
     def log_encode_success(self):
         self.logger.info('Worker %s encoding surrogate of %s has succeeded.', self.worker_id,self.cur_tif)
