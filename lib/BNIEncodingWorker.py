@@ -203,11 +203,7 @@ class BNIEncodingWorker(threading.Thread):
         ocr_string=''
         soup = BeautifulSoup(hocr_string)
         for p_item in soup.findAll('p'):
-            ocr_string += ' '.join(
-                ''.join(
-                    p_item.findAll(text=True)
-                ).encode('utf-8').split()
-            ) + "\n"
+            ocr_string += ' '.join(p_item.getText().split()) + "\n"
         return ocr_string
 
     def check_tif_size(self):
