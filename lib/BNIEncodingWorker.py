@@ -8,7 +8,8 @@ from __future__ import print_function
 from __future__ import unicode_literals
 from bs4 import BeautifulSoup
 import errno
-import MySQLdb
+import pymysql
+
 import os
 import re
 import subprocess
@@ -309,7 +310,7 @@ class BNIEncodingWorker(threading.Thread):
         return True
 
     def init_mysql(self):
-        return MySQLdb.connect(
+        return pymysql.connect(
             host=self.config.get('MySQL', 'mysql_host'),
             user=self.config.get('MySQL', 'mysql_user'),
             passwd=self.config.get('MySQL', 'mysql_pw'),

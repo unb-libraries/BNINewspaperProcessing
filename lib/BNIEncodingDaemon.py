@@ -10,7 +10,7 @@ import configparser
 import logging
 from lib.simpleDaemon import Daemon
 from lib.BNIEncodingWorker import BNIEncodingWorker
-import MySQLdb
+import pymysql
 import os
 import platform
 import threading
@@ -98,7 +98,7 @@ class BNIEncodingDaemon(Daemon):
             self.log_queue_insert(self.queue)
 
     def init_mysql(self):
-        return MySQLdb.connect(
+        return pymysql.connect(
             host=self.config.get('MySQL', 'mysql_host'),
             user=self.config.get('MySQL', 'mysql_user'),
             passwd=self.config.get('MySQL', 'mysql_pw'),
