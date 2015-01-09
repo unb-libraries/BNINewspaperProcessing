@@ -6,7 +6,7 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 from __future__ import unicode_literals
-import ConfigParser
+import configparser
 import logging
 from lib.simpleDaemon import Daemon
 from lib.BNIEncodingWorker import BNIEncodingWorker
@@ -58,7 +58,7 @@ class BNIEncodingDaemon(Daemon):
             time.sleep(self.sleep_time)
 
     def init_config(self, config_filepath):
-        self.config = ConfigParser.SafeConfigParser()
+        self.config = configparser.SafeConfigParser()
         self.config.read(config_filepath)
 
     def init_logger(self):
