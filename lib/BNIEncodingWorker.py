@@ -50,7 +50,8 @@ class BNIEncodingWorker(object):
                 self.setup_next_image()
                 self.logger.info('Worker %s set to work on %s.', self.worker_id, self.cur_tif)
                 self.process_file()
-            except:
+            except Exception as e:
+                self.logger.info('Worker %s excepted out with %s.', self.worker_id, e)
                 self.remove_tempfiles()
                 break
 
