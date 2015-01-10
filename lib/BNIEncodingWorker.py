@@ -84,7 +84,17 @@ class BNIEncodingWorker(object):
         self.append_additional_encode_options(gm_call, 'gm_surrogate_convert_options', 'GraphicsMagick')
         gm_call.append(self.hocr_surrogate_filepath)
 
-        if subprocess.call(gm_call) == 0:
+        try:
+            gm_return = subprocess.call(gm_call, timeout=float(self.config.get('GraphicsMagick', 'gm_timeout')))
+        except Exception as e:
+            self.logger.info('Worker %s failed encoding HOCR surrogate to tesseract input file %s. Exception : %s',
+                             self.worker_id,
+                             self.hocr_surrogate_filepath,
+                             e)
+            self.log_worker_stage(11)
+            return False
+
+        if gm_return == 0:
             self.log_encode_success()
             self.logger.info('Worker %s succeeded in encoding HOCR surrogate to tesseract input file %s.',
                              self.worker_id,
@@ -110,8 +120,8 @@ class BNIEncodingWorker(object):
 
         try:
             tesseract_return = subprocess.call(tesseract_call, timeout=float(self.config.get('Tesseract', 'tesseract_timeout')))
-        except subprocess.TimeoutExpired:
-            self.log_tesseract_fail()
+        except Exception as e:
+            self.log_tesseract_fail(e)
             self.log_worker_stage(13)
             return False
 
@@ -143,7 +153,17 @@ class BNIEncodingWorker(object):
 
         rsyncCall.append(output_path + '/')
         self.log_worker_stage(19)
-        if subprocess.call(rsyncCall, cwd=self.tmp_path) == 0:
+
+        try:
+            rsync_return = subprocess.call(rsyncCall, cwd=self.tmp_path, timeout=float(self.config.get('RSync', 'rsync_timeout')))
+        except Exception as e:
+            self.logger.info('Worker %s failed RSync to archive, Exception : %s.',
+                             self.worker_id,
+                             e)
+            self.log_worker_stage(21)
+            return False
+
+        if rsync_return == 0:
             self.log_worker_stage(20)
             return self.generate_sha1(
                 output_path + '/' + self.tree_target_dir,
@@ -162,7 +182,15 @@ class BNIEncodingWorker(object):
 
         self.log_worker_stage(22)
         sha1sum_call.extend(filenames)
-        if subprocess.call(sha1sum_call, stdout=sha1sum_filep, cwd=path) == 0:
+
+        try:
+            sha1sum_return = subprocess.call(sha1sum_call, stdout=sha1sum_filep, cwd=path, timeout=float(self.config.get('SHA1Sum', 'sha1sum_timeout')))
+        except Exception as e:
+            self.log_worker_stage(24)
+            self.logger.info('Worker %s failed in calculating SHA1sum of files for %s. Exception : %s', self.worker_id, path, e)
+            return False
+
+        if sha1sum_return == 0:
             self.log_worker_stage(23)
             self.logger.info('Worker %s succeded in calculating SHA1sum of files for %s.', self.worker_id, path)
             return True
@@ -198,8 +226,8 @@ class BNIEncodingWorker(object):
     def log_encode_fail(self):
         self.logger.error('Worker %s encoding surrogate of %s has failed.', self.worker_id, self.cur_tif)
 
-    def log_tesseract_fail(self):
-        self.logger.error('Worker %s tesseract job of %s has failed.', self.worker_id, self.cur_tif)
+    def log_tesseract_fail(self, exception):
+        self.logger.error('Worker %s tesseract job of %s has failed. Exception : %s', self.worker_id, self.cur_tif, exception)
 
     def log_encode_success(self):
         self.logger.info('Worker %s encoding surrogate of %s has succeeded.', self.worker_id,self.cur_tif)

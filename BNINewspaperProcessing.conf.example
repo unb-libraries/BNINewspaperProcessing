@@ -27,14 +27,21 @@ min_size_tif=9000000
 
 [GraphicsMagick]
 gm_bin_path=/usr/bin/gm
+gm_timeout=240.0
 
 [Tesseract]
 tesseract_bin_path=/usr/bin/tesseract
 tesseract_language=eng
-tesseract_timeout=15m
+tesseract_timeout=600.0
 
 [OCR]
 gm_surrogate_convert_options=-colorspace Gray,-threshold 50%%,-depth 1,+compress
 
 [HOCR]
 gm_surrogate_convert_options=-colorspace Gray,-threshold 50%%,-depth 1,+compress
+
+[RSync]
+rsync_timeout=120.0
+
+[SHA1Sum]
+sha1sum_timeout=120.0
