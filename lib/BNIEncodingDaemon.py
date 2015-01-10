@@ -13,7 +13,7 @@ from lib.BNIEncodingWorker import BNIEncodingWorker
 import pymysql
 import os
 import platform
-import threading
+import multiprocessing
 import time
 import socket
 import subprocess
@@ -34,26 +34,27 @@ class BNIEncodingDaemon(Daemon):
         self.log_daemon_config()
 
     def run(self):
-        self.logger.info('Updating Queue.')
-        self.update_queue()
+        worker_processes = dict()
         while True:
+            self.logger.info('Updating Queue.')
+            self.update_queue()
             self.logger.info('Daemon looking for jobs for workers.')
             for worker_id in range(self.max_workers):
-                self.logger.info('Daemon found job(s) - deploying to worker %s.', worker_id)
+                self.logger.info('Daemon found job(s) - deploying to new worker %s.', worker_id)
                 worker = BNIEncodingWorker(
                     worker_id,
                     self.config,
                     self.logger,
                     self.input_path,
                 )
-                worker.start()
+                worker_processes[worker_id] = multiprocessing.Process(name='encodingworker-'+str(worker_id), target=worker.run)
+                worker_processes[worker_id].start()
                 # Sleep on initial worker spin-up to let previous worker get job from queue and stagger queue
                 # grabs. It currently is 'safe' but throw exceptions if two workers try to grab at the same time.
                 # Making it 100% thread safe with blocking is a whole thing, so we do this.
                 time.sleep(3)
-            for thread in threading.enumerate():
-                if thread is not threading.currentThread():
-                    thread.join()
+            for cur_worker_process in worker_processes:
+                cur_worker_process.join()
             self.logger.info('All workers retired, daemon sleeping for %s seconds.', self.sleep_time)
             time.sleep(self.sleep_time)
 

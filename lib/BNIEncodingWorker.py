@@ -16,7 +16,7 @@ import subprocess
 import threading
 
 
-class BNIEncodingWorker(threading.Thread):
+class BNIEncodingWorker(object):
     def __init__(self, worker_id, config, logger, tree_base_path):
         threading.Thread.__init__(self)
         self.init_config(config)
