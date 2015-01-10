@@ -53,7 +53,7 @@ class BNIEncodingDaemon(Daemon):
                 # grabs. It currently is 'safe' but throw exceptions if two workers try to grab at the same time.
                 # Making it 100% thread safe with blocking is a whole thing, so we do this.
                 time.sleep(3)
-            for cur_worker_process in worker_processes:
+            for cur_worker_id, cur_worker_process in worker_processes.items():
                 cur_worker_process.join()
             self.logger.info('All workers retired, daemon sleeping for %s seconds.', self.sleep_time)
             time.sleep(self.sleep_time)
