@@ -16,6 +16,8 @@ CREATE TABLE images (
   config_id MEDIUMINT UNSIGNED,
   filepath VARCHAR(512),
   status_id TINYINT UNSIGNED,
+  glacier_vault VARCHAR(128),
+  glacier_description VARCHAR(512),
   queue_datestamp DATETIME,
   start_datestamp DATETIME,
   latest_datestamp DATETIME
@@ -55,4 +57,5 @@ INSERT INTO status (status_id,status_string) VALUES
 (23,'PASSSHA1SUM'),
 (24,'FAILSHA1SUM'),
 (25,'REMOVEORIGINAL'),
-(26,'COMPLETE');
+(26,'PROCESSINGCOMPLETE'),
+(27,'ARCHIVEDTOGLACIER');
