@@ -35,9 +35,9 @@ class BNIEncodingDaemon(Daemon):
 
     def run(self):
         worker_processes = dict()
+        self.logger.info('Updating Queue.')
+        self.update_queue()
         while True:
-            self.logger.info('Updating Queue.')
-            self.update_queue()
             self.logger.info('Daemon looking for jobs for workers.')
             for worker_id in range(self.max_workers):
                 self.logger.info('Daemon found job(s) - deploying to new worker %s.', worker_id)
