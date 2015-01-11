@@ -37,26 +37,24 @@ class BNIEncodingDaemon(Daemon):
         worker_processes = dict()
         self.logger.info('Updating Queue.')
         self.update_queue()
-        while True:
-            self.logger.info('Daemon looking for jobs for workers.')
-            for worker_id in range(self.max_workers):
-                self.logger.info('Daemon found job(s) - deploying to new worker %s.', worker_id)
-                worker = BNIEncodingWorker(
-                    worker_id,
-                    self.config,
-                    self.logger,
-                    self.input_path,
-                )
-                worker_processes[worker_id] = multiprocessing.Process(name='encodingworker-'+str(worker_id), target=worker.run)
-                worker_processes[worker_id].start()
-                # Sleep on initial worker spin-up to let previous worker get job from queue and stagger queue
-                # grabs. It currently is 'safe' but throw exceptions if two workers try to grab at the same time.
-                # Making it 100% thread safe with blocking is a whole thing, so we do this.
-                time.sleep(3)
-            for cur_worker_id, cur_worker_process in worker_processes.items():
-                cur_worker_process.join()
-            self.logger.info('All workers retired, daemon sleeping for %s seconds.', self.sleep_time)
-            time.sleep(self.sleep_time)
+        self.logger.info('Daemon looking for jobs for workers.')
+        for worker_id in range(self.max_workers):
+            self.logger.info('Daemon found job(s) - deploying to new worker %s.', worker_id)
+            worker = BNIEncodingWorker(
+                worker_id,
+                self.config,
+                self.logger,
+                self.input_path,
+            )
+            worker_processes[worker_id] = multiprocessing.Process(name='encodingworker-'+str(worker_id), target=worker.run)
+            worker_processes[worker_id].start()
+            # Sleep on initial worker spin-up to let previous worker get job from queue and stagger queue
+            # grabs. It currently is 'safe' but throw exceptions if two workers try to grab at the same time.
+            # Making it 100% thread safe with blocking is a whole thing, so we do this.
+            time.sleep(3)
+        for cur_worker_id, cur_worker_process in worker_processes.items():
+            cur_worker_process.join()
+        self.logger.info('All workers retired, stopping daemon.', self.sleep_time)
 
     def init_config(self, config_filepath):
         self.config = configparser.SafeConfigParser()
